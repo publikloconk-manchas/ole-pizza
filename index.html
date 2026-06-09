@@ -26,26 +26,21 @@
 
     <div id="toast-container" class="fixed bottom-5 right-5 z-[100] flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- Navegación -->
+    <!-- Navegación Limpia -->
     <nav class="fixed top-0 left-0 w-full bg-[#0f172a] text-white shadow-xl z-50">
         <div class="max-w-7xl mx-auto px-4 flex justify-between h-20 items-center">
             <div class="cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
                 <span class="text-2xl font-black text-rose-500 font-heading">OLÉ PIZZA 🍕</span>
             </div>
             
-            <div class="hidden lg:flex bg-slate-800 rounded-full p-1 mx-4 border border-slate-700">
-                <button id="btn-type-delivery" onclick="setOrderType('Delivery')" class="bg-rose-600 shadow-md text-white font-bold py-2 px-6 rounded-full transition-all">🛵 Delivery</button>
-                <button id="btn-type-pickup" onclick="setOrderType('Retiro')" class="text-gray-300 font-bold py-2 px-6 rounded-full hover:text-white transition-all">🏪 Recoger</button>
-            </div>
-
             <div class="flex items-center space-x-2 sm:space-x-3">
-                <button id="btn-user-profile" class="bg-slate-800 text-gray-300 border border-slate-700 hover:bg-slate-700 px-3 py-2 rounded-full text-xs sm:text-sm font-bold flex items-center gap-1">
+                <button id="btn-user-profile" class="bg-slate-800 text-gray-300 border border-slate-700 hover:bg-slate-700 px-3 py-2.5 rounded-full text-xs sm:text-sm font-bold flex items-center gap-2 transition-colors">
                     <span>👤</span> <span id="nav-user-text">Ingresar</span>
                 </button>
-                <button id="btn-admin-auth" class="bg-slate-800 text-rose-400 border border-slate-700 hover:bg-slate-700 px-3 py-2 rounded-full text-xs sm:text-sm font-bold flex items-center gap-1">
+                <button id="btn-admin-auth" class="bg-slate-800 text-rose-400 border border-slate-700 hover:bg-slate-700 px-3 py-2.5 rounded-full text-xs sm:text-sm font-bold flex items-center gap-2 transition-colors">
                     <span>🔑</span> <span class="hidden sm:inline">Admin</span>
                 </button>
-                <button id="cart-toggle" class="relative bg-rose-600 hover:bg-rose-700 text-white p-2.5 sm:p-3 rounded-full shadow-lg">
+                <button id="cart-toggle" class="relative bg-rose-600 hover:bg-rose-700 text-white p-2.5 sm:p-3 rounded-full shadow-lg transition-transform hover:scale-105">
                     <span class="text-lg sm:text-xl">🛒</span>
                     <span id="cart-count" class="absolute -top-1 -right-1 bg-amber-500 text-slate-900 text-[10px] sm:text-xs font-black px-1.5 py-0.5 rounded-full border-2 border-white">0</span>
                 </button>
@@ -53,148 +48,157 @@
         </div>
     </nav>
 
-    <!-- Banners -->
+    <!-- Banner Hero Principal -->
     <header class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 relative bg-slate-900 rounded-3xl overflow-hidden shadow-lg min-h-[380px] flex items-center p-8 sm:p-12 text-white">
-                <div class="absolute inset-0 opacity-40 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80');"></div>
-                <div class="relative z-10 max-w-md">
-                    <span class="bg-rose-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Pide ahora</span>
-                    <h1 class="text-4xl sm:text-5xl font-black mt-4 mb-4 leading-tight uppercase font-heading">Sabor de<br><span class="text-amber-400">Verdad</span></h1>
-                </div>
-            </div>
-            <div class="flex flex-col gap-6">
-                <div class="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 rounded-3xl p-6 shadow-lg text-white relative">
-                    <h3 class="text-2xl font-black uppercase font-heading">Ofertas</h3>
-                </div>
+        <div class="relative bg-slate-900 rounded-3xl overflow-hidden shadow-2xl min-h-[450px] flex items-center p-8 sm:p-14 text-white">
+            <div class="absolute inset-0 opacity-50 bg-cover bg-center transition-transform duration-700 hover:scale-105" style="background-image: url('https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80');"></div>
+            <div class="relative z-10 max-w-xl">
+                <span class="bg-rose-600 text-white text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest shadow-md">Pide ahora en línea</span>
+                <h1 class="text-5xl sm:text-7xl font-black mt-6 mb-4 leading-tight uppercase font-heading drop-shadow-lg">Sabor de<br><span class="text-amber-400">Verdad</span></h1>
+                <p class="text-gray-100 text-lg mb-8 font-light drop-shadow">Disfruta de la auténtica pizza horneada a la perfección, lista para llevar o disfrutar cómodamente en casa.</p>
+                <button onclick="document.getElementById('menu-section').scrollIntoView({behavior: 'smooth'})" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold py-3.5 px-8 rounded-xl shadow-lg transition-all transform hover:-translate-y-1">Ver Carta</button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 py-8">
-        <h2 class="text-3xl font-black text-slate-900 uppercase font-heading mb-6 tracking-tight">Arma tu Menú</h2>
-        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+    <main id="menu-section" class="max-w-7xl mx-auto px-4 py-8">
+        <h2 class="text-3xl font-black text-slate-900 uppercase font-heading mb-8 tracking-tight border-b-2 border-gray-100 pb-4">Arma tu Menú</h2>
+        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div>
     </main>
 
     <!-- Footer Configurable -->
-    <footer class="bg-[#0f172a] text-white pt-12 pb-6 border-t-4 border-rose-600">
+    <footer class="bg-[#0f172a] text-white pt-12 pb-6 border-t-4 border-rose-600 mt-12">
         <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-3 gap-8 text-sm text-gray-400">
             <div><h3 class="text-xl font-heading font-extrabold text-white mb-3">OLÉ PIZZA 🍕</h3></div>
             <div>
-                <h4 class="font-bold text-white mb-3 uppercase text-amber-400">Contacto</h4>
+                <h4 class="font-bold text-white mb-3 uppercase text-amber-400 tracking-wider">Contacto</h4>
                 <p>📞 <span id="footer-telefono">...</span></p>
             </div>
         </div>
     </footer>
 
-    <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-60 z-[55] hidden"></div>
+    <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-60 z-[55] hidden transition-opacity"></div>
 
     <!-- Carrito Lateral -->
     <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full sm:w-[400px] bg-white shadow-2xl z-[60] transform translate-x-full transition-transform flex flex-col">
         <div class="bg-[#0f172a] text-white p-5 flex justify-between items-center">
             <h2 class="text-lg font-bold font-heading">🛒 Orden Actual</h2>
-            <button id="close-cart" class="text-white hover:text-rose-400 text-3xl">&times;</button>
+            <button id="close-cart" class="text-white hover:text-rose-400 text-3xl transition-colors">&times;</button>
         </div>
         <div id="cart-items" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50"></div>
         <div class="bg-white p-5 border-t shadow-xl">
             <div class="flex justify-between items-center mb-5">
-                <span class="text-base font-bold font-heading">Total Neto</span>
-                <span id="cart-total" class="text-xl font-black text-rose-600 font-mono">€0.00</span>
+                <span class="text-base font-bold font-heading text-slate-700">Total Neto</span>
+                <span id="cart-total" class="text-2xl font-black text-rose-600 font-mono">€0.00</span>
             </div>
-            <button id="btn-open-checkout" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-4 rounded-xl uppercase font-heading">Confirmar y Pedir</button>
+            <button id="btn-open-checkout" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-4 rounded-xl uppercase font-heading shadow-md transition-colors">Confirmar y Pedir</button>
         </div>
     </div>
 
-    <!-- Modal Checkout -->
-    <div id="checkout-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl p-6 z-[70] w-11/12 max-w-lg hidden">
-        <div class="flex justify-between items-center mb-4 border-b pb-2">
-            <h3 class="text-lg font-bold font-heading">Procesar Pago</h3>
-            <button id="close-checkout" class="text-gray-400 text-2xl">&times;</button>
+    <!-- Modal Checkout (Ajustado con botones de selección de entrega) -->
+    <div id="checkout-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl p-6 sm:p-8 z-[70] w-11/12 max-w-lg hidden">
+        <div class="flex justify-between items-center mb-6 border-b pb-3">
+            <h3 class="text-xl font-bold font-heading text-slate-900">Procesar Pago</h3>
+            <button id="close-checkout" class="text-gray-400 hover:text-rose-600 text-2xl transition-colors">&times;</button>
         </div>
+        
         <div class="space-y-4">
-            <input type="text" id="chk-name" class="w-full border rounded p-2 text-sm bg-gray-100" readonly>
-            <input type="tel" id="chk-phone" class="w-full border rounded p-2 text-sm bg-gray-100" readonly>
-            <textarea id="chk-address" rows="2" placeholder="Dirección de entrega" class="w-full border rounded p-2 text-sm"></textarea>
-            <div class="grid grid-cols-2 gap-2">
-                <select id="chk-metodo" class="border rounded p-2 text-sm bg-white">
+            <!-- Selección Inteligente de Delivery/Retiro -->
+            <div class="flex bg-gray-100 rounded-xl p-1 mb-2">
+                <button id="chk-type-delivery" onclick="window.setOrderType('Delivery')" class="flex-1 py-2.5 text-sm font-bold bg-white rounded-lg shadow-sm text-rose-600 transition-all">🛵 Delivery</button>
+                <button id="chk-type-pickup" onclick="window.setOrderType('Retiro')" class="flex-1 py-2.5 text-sm font-bold text-gray-500 hover:text-slate-800 transition-all">🏪 Retiro en Tienda</button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <input type="text" id="chk-name" class="w-full border border-gray-200 rounded-xl p-3 text-sm bg-gray-50 text-slate-500 outline-none" readonly title="Nombre asociado a la cuenta">
+                <input type="tel" id="chk-phone" class="w-full border border-gray-200 rounded-xl p-3 text-sm bg-gray-50 text-slate-500 outline-none" readonly title="Teléfono asociado a la cuenta">
+            </div>
+            
+            <div id="address-container" class="transition-opacity">
+                <textarea id="chk-address" rows="2" placeholder="Dirección exacta de entrega" class="w-full border border-gray-300 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-rose-500 transition-all"></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <select id="chk-metodo" class="border border-gray-300 rounded-xl p-3 text-sm bg-white outline-none focus:ring-2 focus:ring-rose-500">
                     <option value="Pago Móvil">📱 Pago Móvil</option>
                     <option value="Efectivo">💵 Efectivo al recibir</option>
                 </select>
-                <input type="text" id="chk-ref" placeholder="Nro de Referencia" class="border rounded p-2 text-sm">
+                <input type="text" id="chk-ref" placeholder="Nro de Referencia" class="border border-gray-300 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-rose-500">
             </div>
-            <button id="btn-submit-order" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl uppercase text-sm shadow-md">Enviar Pedido</button>
+
+            <button id="btn-submit-order" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl uppercase text-sm shadow-lg mt-2 transition-transform transform hover:-translate-y-0.5">Enviar Pedido Ahora</button>
         </div>
     </div>
 
     <!-- Modal Login/Registro -->
-    <div id="user-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl p-6 z-[70] w-11/12 max-w-sm hidden">
-        <div class="flex justify-between items-center mb-4 border-b pb-2">
-            <h3 class="text-xl font-black font-heading">Perfil de Cliente</h3>
-            <button id="close-user-modal" class="text-gray-400 text-2xl">&times;</button>
+    <div id="user-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl p-6 sm:p-8 z-[70] w-11/12 max-w-sm hidden">
+        <div class="flex justify-between items-center mb-6 border-b pb-3">
+            <h3 class="text-xl font-black font-heading text-slate-900">Perfil de Cliente</h3>
+            <button id="close-user-modal" class="text-gray-400 hover:text-rose-600 text-2xl transition-colors">&times;</button>
         </div>
         
         <div id="user-logged-out-state">
-            <div class="flex bg-gray-100 rounded-lg p-1 mb-4">
-                <button id="tab-login" class="flex-1 py-1 text-sm font-bold bg-white rounded shadow-sm">Iniciar</button>
-                <button id="tab-signup" class="flex-1 py-1 text-sm font-bold text-gray-500">Crear Cuenta</button>
+            <div class="flex bg-gray-100 rounded-xl p-1 mb-5">
+                <button id="tab-login" class="flex-1 py-2 text-sm font-bold bg-white rounded-lg shadow-sm text-slate-900 transition-all">Iniciar</button>
+                <button id="tab-signup" class="flex-1 py-2 text-sm font-bold text-gray-500 hover:text-slate-800 transition-all">Crear Cuenta</button>
             </div>
-            <div id="form-login" class="space-y-3">
-                <input type="text" id="login-user" placeholder="Usuario" class="w-full border p-2 rounded text-sm">
-                <input type="password" id="login-pass" placeholder="Clave" class="w-full border p-2 rounded text-sm">
-                <button id="btn-login" class="w-full bg-rose-600 text-white font-bold py-2 rounded uppercase text-sm">Entrar</button>
+            <div id="form-login" class="space-y-4">
+                <input type="text" id="login-user" placeholder="Usuario" class="w-full border border-gray-300 p-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-rose-500">
+                <input type="password" id="login-pass" placeholder="Clave" class="w-full border border-gray-300 p-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-rose-500">
+                <button id="btn-login" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3.5 rounded-xl uppercase text-sm shadow-md transition-colors">Entrar</button>
             </div>
-            <div id="form-signup" class="space-y-3 hidden">
-                <input type="text" id="reg-user" placeholder="Usuario" class="w-full border p-2 rounded text-sm">
-                <input type="password" id="reg-pass" placeholder="Clave" class="w-full border p-2 rounded text-sm">
-                <input type="text" id="reg-name" placeholder="Nombre Completo" class="w-full border p-2 rounded text-sm">
-                <input type="tel" id="reg-phone" placeholder="Teléfono" class="w-full border p-2 rounded text-sm">
-                <button id="btn-signup" class="w-full bg-rose-600 text-white font-bold py-2 rounded uppercase text-sm">Registrarse</button>
+            <div id="form-signup" class="space-y-4 hidden">
+                <input type="text" id="reg-user" placeholder="Usuario" class="w-full border border-gray-300 p-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-rose-500">
+                <input type="password" id="reg-pass" placeholder="Clave" class="w-full border border-gray-300 p-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-rose-500">
+                <input type="text" id="reg-name" placeholder="Nombre Completo" class="w-full border border-gray-300 p-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-rose-500">
+                <input type="tel" id="reg-phone" placeholder="Teléfono" class="w-full border border-gray-300 p-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-rose-500">
+                <button id="btn-signup" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3.5 rounded-xl uppercase text-sm shadow-md transition-colors">Registrarse</button>
             </div>
         </div>
 
-        <div id="user-logged-in-state" class="hidden space-y-4">
-            <div class="bg-slate-50 p-3 rounded border text-sm text-center">
-                <p>Hola, <strong id="profile-name" class="text-rose-600"></strong></p>
-                <p class="text-xs text-gray-500">Sesión iniciada correctamente.</p>
+        <div id="user-logged-in-state" class="hidden space-y-5">
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-sm text-center">
+                <p class="text-slate-600">Hola, <strong id="profile-name" class="text-rose-600 text-lg block mt-1"></strong></p>
+                <p class="text-xs text-gray-500 mt-2">Sesión iniciada correctamente.</p>
             </div>
-            <button id="btn-logout" class="w-full bg-gray-200 text-gray-700 font-bold py-2 rounded text-sm">Cerrar Sesión</button>
+            <button id="btn-logout" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-xl text-sm transition-colors">Cerrar Sesión</button>
         </div>
     </div>
 
     <!-- Modal Admin Login -->
-    <div id="auth-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl p-6 z-[70] w-11/12 max-w-sm hidden">
-        <h3 class="text-lg font-bold text-slate-900 mb-2 font-heading">Acceso Administrador</h3>
-        <input type="password" id="admin-pass-input" placeholder="Clave secreta" class="w-full border rounded p-3 text-sm mb-3">
-        <button id="btn-submit-auth" class="w-full bg-[#0f172a] text-white py-2 rounded font-bold">Ingresar</button>
-        <button id="btn-close-auth" class="w-full text-gray-500 text-sm mt-2 font-bold">Cancelar</button>
+    <div id="auth-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl p-6 sm:p-8 z-[70] w-11/12 max-w-sm hidden">
+        <h3 class="text-xl font-bold text-slate-900 mb-4 font-heading border-b pb-3">Acceso Administrador</h3>
+        <input type="password" id="admin-pass-input" placeholder="Clave secreta" class="w-full border border-gray-300 rounded-xl p-3 text-sm mb-4 outline-none focus:ring-2 focus:ring-slate-900">
+        <button id="btn-submit-auth" class="w-full bg-[#0f172a] hover:bg-slate-800 text-white py-3.5 rounded-xl font-bold shadow-md transition-colors">Ingresar al Panel</button>
+        <button id="btn-close-auth" class="w-full text-gray-500 hover:text-gray-800 text-sm mt-3 font-bold py-2 transition-colors">Cancelar</button>
     </div>
 
     <!-- Modal Panel Admin COMPLETO -->
-    <div id="admin-panel-modal" class="fixed inset-4 sm:inset-10 bg-white rounded-3xl shadow-2xl z-[70] flex flex-col hidden">
-        <div class="bg-[#0f172a] text-white p-5 rounded-t-3xl flex justify-between items-center">
+    <div id="admin-panel-modal" class="fixed inset-2 sm:inset-10 bg-white rounded-3xl shadow-2xl z-[70] flex flex-col hidden overflow-hidden">
+        <div class="bg-[#0f172a] text-white p-5 rounded-t-3xl flex justify-between items-center z-10 shadow-md">
             <h3 class="text-lg font-bold font-heading">Panel de Control General</h3>
-            <button id="close-admin-panel" class="text-white text-2xl">&times;</button>
+            <button id="close-admin-panel" class="text-white hover:text-rose-400 text-2xl transition-colors">&times;</button>
         </div>
         
         <!-- Pestañas Admin -->
-        <div class="flex border-b border-gray-200 bg-gray-50">
-            <button id="admin-tab-pedidos-btn" class="flex-1 py-3 text-sm font-bold text-rose-600 border-b-2 border-rose-600 bg-white">🛎️ Gestión de Pedidos</button>
-            <button id="admin-tab-catalogo-btn" class="flex-1 py-3 text-sm font-bold text-gray-500 hover:text-slate-800">🍕 Editor de Carta</button>
+        <div class="flex border-b border-gray-200 bg-gray-50 z-10 shadow-sm">
+            <button id="admin-tab-pedidos-btn" class="flex-1 py-3.5 text-sm font-bold text-rose-600 border-b-2 border-rose-600 bg-white transition-colors">🛎️ Gestión de Pedidos</button>
+            <button id="admin-tab-catalogo-btn" class="flex-1 py-3.5 text-sm font-bold text-gray-500 hover:text-slate-800 transition-colors">🍕 Editor de Carta</button>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50">
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-100">
             <!-- Vista de Pedidos -->
-            <div id="admin-view-pedidos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <p class="text-gray-500 col-span-full text-center py-10">Buscando pedidos en tiempo real...</p>
+            <div id="admin-view-pedidos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <p class="text-gray-500 col-span-full text-center py-10 font-medium">Buscando pedidos en tiempo real...</p>
             </div>
 
             <!-- Vista de Catálogo (Editor) -->
-            <div id="admin-view-catalogo" class="hidden space-y-4 max-w-4xl mx-auto">
-                <div class="bg-amber-50 border border-amber-200 p-3 rounded text-xs text-amber-800 mb-4">
-                    <strong>Atención:</strong> Los cambios que hagas aquí se guardarán permanentemente en la página.
+            <div id="admin-view-catalogo" class="hidden space-y-5 max-w-5xl mx-auto">
+                <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-sm text-amber-800 shadow-sm">
+                    <strong class="block mb-1 text-amber-900">Atención:</strong> Los cambios que guardes aquí se reflejarán instantáneamente en la página de los clientes.
                 </div>
                 <div id="admin-catalogo-list" class="space-y-4"></div>
-                <button onclick="window.guardarCatalogoAdmin()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl mt-4 text-sm shadow-md">💾 Guardar Cambios en la Carta</button>
+                <button onclick="window.guardarCatalogoAdmin()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition-transform transform hover:-translate-y-0.5 sticky bottom-4">💾 Guardar Cambios en la Carta</button>
             </div>
         </div>
     </div>
@@ -202,7 +206,7 @@
     <script>
         const CONFIG_TIENDA = {
             telefono: "0412-1234567",
-            adminPassHash: "b2xlMjAyNg==" // Clave: ole2026
+            adminPassHash: "b2xlMjAyNg==" // Clave oculta: ole2026
         };
 
         document.getElementById('footer-telefono').textContent = CONFIG_TIENDA.telefono;
@@ -218,14 +222,14 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
-        auth.signInAnonymously().catch(e => console.log(e));
+        auth.signInAnonymously().catch(e => console.log("Firebase Auth warning:", e));
 
         // Data Local
         const defaultMenu = [
-            { id: 1, name: 'Margarita Especial', price: 10.90, img: 'https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?auto=format&fit=crop&w=600&q=80', desc: 'Salsa napolitana y mozzarella.' },
-            { id: 2, name: 'Doble Pepperoni', price: 13.50, img: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=600&q=80', desc: 'Doble porción de pepperoni rústico.' },
-            { id: 3, name: 'Barbacoa Suprema', price: 14.90, img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80', desc: 'Carne, tocineta y salsa BBQ.' },
-            { id: 4, name: 'Alitas Ahumadas', price: 6.90, img: 'https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&w=600&q=80', desc: 'Bañadas en salsa especial.' }
+            { id: 1, name: 'Margarita Especial', price: 10.90, img: 'https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?auto=format&fit=crop&w=600&q=80', desc: 'Salsa napolitana casera, abundante mozzarella fresca y toques de albahaca.' },
+            { id: 2, name: 'Doble Pepperoni', price: 13.50, img: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=600&q=80', desc: 'Para los amantes de la carne: doble porción de pepperoni rústico y queso fundido.' },
+            { id: 3, name: 'Barbacoa Suprema', price: 14.90, img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80', desc: 'Carne premium, tiras de tocineta crujiente, cebolla morada y nuestra famosa salsa BBQ.' },
+            { id: 4, name: 'Alitas Ahumadas', price: 6.90, img: 'https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&w=600&q=80', desc: 'Bañadas en salsa especial ahumada, horneadas a la perfección.' }
         ];
 
         let menuData = JSON.parse(localStorage.getItem('ole_pizza_menu_data')) || defaultMenu;
@@ -234,25 +238,41 @@
         let isAdmin = false;
         let orderType = 'Delivery';
 
+        // Lógica de Toggle de Entrega en el Checkout
         window.setOrderType = (type) => {
             orderType = type;
-            document.getElementById('btn-type-delivery').className = type === 'Delivery' ? "bg-rose-600 shadow-md text-white font-bold py-2 px-6 rounded-full transition-all" : "text-gray-300 font-bold py-2 px-6 rounded-full hover:text-white transition-all";
-            document.getElementById('btn-type-pickup').className = type === 'Retiro' ? "bg-rose-600 shadow-md text-white font-bold py-2 px-6 rounded-full transition-all" : "text-gray-300 font-bold py-2 px-6 rounded-full hover:text-white transition-all";
+            const btnDel = document.getElementById('chk-type-delivery');
+            const btnPic = document.getElementById('chk-type-pickup');
+            const addrContainer = document.getElementById('address-container');
+            
+            if(btnDel && btnPic) {
+                if (type === 'Delivery') {
+                    btnDel.className = "flex-1 py-2.5 text-sm font-bold bg-white rounded-lg shadow-sm text-rose-600 transition-all";
+                    btnPic.className = "flex-1 py-2.5 text-sm font-bold text-gray-500 hover:text-slate-800 transition-all";
+                    addrContainer.classList.remove('hidden');
+                } else {
+                    btnPic.className = "flex-1 py-2.5 text-sm font-bold bg-white rounded-lg shadow-sm text-rose-600 transition-all";
+                    btnDel.className = "flex-1 py-2.5 text-sm font-bold text-gray-500 hover:text-slate-800 transition-all";
+                    addrContainer.classList.add('hidden');
+                }
+            }
         };
 
         // UI Pública
         function renderMenu() {
             const grid = document.getElementById('product-grid');
             grid.innerHTML = menuData.map(item => `
-                <div class="bg-white p-4 rounded-2xl shadow-md border border-gray-100 flex flex-col justify-between">
+                <div class="bg-white p-5 rounded-3xl shadow-md border border-gray-100 flex flex-col justify-between transition-transform duration-300 hover:-translate-y-1.5 hover:shadow-xl">
                     <div>
-                        <img src="${item.img}" class="w-full h-40 object-cover rounded-xl mb-3">
-                        <h3 class="font-bold text-slate-900">${item.name}</h3>
-                        <p class="text-xs text-gray-500 mt-1">${item.desc}</p>
+                        <div class="relative overflow-hidden rounded-2xl mb-4">
+                            <img src="${item.img}" class="w-full h-44 object-cover transition-transform duration-500 hover:scale-110">
+                        </div>
+                        <h3 class="font-bold text-lg text-slate-900 leading-tight">${item.name}</h3>
+                        <p class="text-sm text-gray-500 mt-2 line-clamp-3">${item.desc}</p>
                     </div>
-                    <div class="mt-4 flex justify-between items-center">
-                        <span class="font-black text-lg text-rose-600">€${parseFloat(item.price).toFixed(2)}</span>
-                        <button onclick="window.addToCart(${item.id})" class="bg-slate-900 text-white font-bold px-4 py-2 rounded-lg text-xs hover:bg-rose-600 transition">Agregar</button>
+                    <div class="mt-5 flex justify-between items-center border-t border-gray-100 pt-4">
+                        <span class="font-black text-xl text-rose-600 font-mono">€${parseFloat(item.price).toFixed(2)}</span>
+                        <button onclick="window.addToCart(${item.id})" class="bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-rose-600 transition-colors shadow-md">Agregar</button>
                     </div>
                 </div>
             `).join('');
@@ -275,22 +295,22 @@
             document.getElementById('cart-count').textContent = cart.reduce((acc, i) => acc + i.quantity, 0);
             const container = document.getElementById('cart-items');
             if (cart.length === 0) {
-                container.innerHTML = '<p class="text-gray-400 text-center mt-10">Tu cesta está vacía</p>';
+                container.innerHTML = '<div class="text-center mt-12"><span class="text-6xl block mb-4 opacity-50">🍕</span><p class="text-gray-400 font-medium">Tu cesta está vacía</p></div>';
                 document.getElementById('cart-total').textContent = '€0.00';
                 return;
             }
             let total = 0;
             container.innerHTML = cart.map(item => {
                 total += item.price * item.quantity;
-                return `<div class="flex justify-between items-center bg-white p-3 rounded border mb-2 shadow-sm">
+                return `<div class="flex justify-between items-center bg-white p-4 rounded-xl border border-gray-100 mb-3 shadow-sm">
                     <div>
-                        <h4 class="font-bold text-sm">${item.name}</h4>
-                        <span class="text-xs text-rose-600 font-bold">€${item.price.toFixed(2)}</span>
+                        <h4 class="font-bold text-sm text-slate-800">${item.name}</h4>
+                        <span class="text-sm text-rose-600 font-black font-mono mt-1 block">€${item.price.toFixed(2)}</span>
                     </div>
-                    <div class="flex items-center gap-2 bg-gray-100 rounded px-2 py-1">
-                        <button onclick="window.modQty(${item.id}, -1)" class="font-bold text-gray-600">-</button>
-                        <span class="text-xs font-bold w-4 text-center">${item.quantity}</span>
-                        <button onclick="window.modQty(${item.id}, 1)" class="font-bold text-gray-600">+</button>
+                    <div class="flex items-center gap-3 bg-gray-50 rounded-lg px-2 py-1.5 border border-gray-100">
+                        <button onclick="window.modQty(${item.id}, -1)" class="font-black text-gray-500 hover:text-rose-600 w-6 h-6 flex items-center justify-center transition-colors">-</button>
+                        <span class="text-sm font-bold w-4 text-center text-slate-800">${item.quantity}</span>
+                        <button onclick="window.modQty(${item.id}, 1)" class="font-black text-gray-500 hover:text-green-600 w-6 h-6 flex items-center justify-center transition-colors">+</button>
                     </div>
                 </div>`;
             }).join('');
@@ -326,7 +346,7 @@
             const pass = document.getElementById('reg-pass').value;
             const name = document.getElementById('reg-name').value;
             const phone = document.getElementById('reg-phone').value;
-            if(!user || !pass || !name) return notificar("Faltan datos", "error");
+            if(!user || !pass || !name) return notificar("Por favor, llena los datos requeridos", "error");
             
             const newUser = { usuario: user, clave: pass, nombre: name, telefono: phone };
             let localUsers = JSON.parse(localStorage.getItem('ole_users_db')) || {};
@@ -335,7 +355,7 @@
             
             currentUser = newUser;
             localStorage.setItem('ole_pizza_user', JSON.stringify(currentUser));
-            updateUserUI(); cerrarModal('user-modal'); notificar(`¡Bienvenido!`);
+            updateUserUI(); cerrarModal('user-modal'); notificar(`¡Bienvenido a la familia Olé!`);
         };
 
         document.getElementById('btn-login').onclick = () => {
@@ -345,77 +365,80 @@
             if(localUsers[user] && localUsers[user].clave === pass) {
                 currentUser = localUsers[user];
                 localStorage.setItem('ole_pizza_user', JSON.stringify(currentUser));
-                updateUserUI(); cerrarModal('user-modal'); notificar("Sesión Iniciada");
-            } else { notificar("Usuario o clave incorrecta", "error"); }
+                updateUserUI(); cerrarModal('user-modal'); notificar("Sesión Iniciada exitosamente");
+            } else { notificar("Usuario o contraseña incorrectos", "error"); }
         };
 
         document.getElementById('btn-logout').onclick = () => {
             currentUser = null; localStorage.removeItem('ole_pizza_user');
             updateUserUI(); cerrarModal('user-modal');
+            notificar("Has cerrado sesión");
         };
 
-        // Checkout
+        // Checkout y Envio
         document.getElementById('btn-open-checkout').onclick = () => {
-            if (cart.length === 0) return notificar("Carrito vacío", "error");
-            cerrarModal('cart-sidebar', false); abrirModal('checkout-modal');
+            if (cart.length === 0) return notificar("Agrega productos a la cesta primero", "error");
+            cerrarModal('cart-sidebar', false); 
+            window.setOrderType('Delivery'); // Reset a default visual state
+            abrirModal('checkout-modal');
         };
 
         document.getElementById('btn-submit-order').onclick = async () => {
             const address = document.getElementById('chk-address').value;
-            if(!address && orderType === 'Delivery') return notificar("Indica tu dirección", "error");
+            if(!address && orderType === 'Delivery') return notificar("La dirección de entrega es obligatoria", "error");
 
             const orderId = 'PED-' + Math.floor(Math.random() * 90000 + 10000);
             const payload = {
                 id: orderId,
                 cliente: currentUser.nombre,
                 telefono: currentUser.telefono,
-                direccion: address || "Retiro en Local",
+                direccion: address || "Retiro presencial en el local",
                 tipoEntrega: orderType,
                 metodoPago: document.getElementById('chk-metodo').value,
                 referencia: document.getElementById('chk-ref').value,
                 items: cart.map(i => `${i.quantity}x ${i.name}`),
                 total: cart.reduce((s,i) => s + (i.price * i.quantity), 0),
                 fecha: new Date().toLocaleString(),
-                estatus: "Recibido"
+                estatus: "Recibido" // Estado inicial
             };
 
             try {
                 await db.collection("pedidos").doc(orderId).set(payload);
                 cart = []; updateCart(); cerrarModal('checkout-modal');
-                notificar("¡Pedido enviado a la cocina!");
-            } catch (error) { notificar("Error al guardar pedido", "error"); }
+                notificar("¡Pedido enviado a la cocina de Olé Pizza!");
+            } catch (error) { notificar("Error al comunicar con la base de datos", "error"); }
         };
 
-        // Admin Panel & Lógica
+        // Panel Administrador General
         document.getElementById('btn-submit-auth').onclick = () => {
             if (btoa(document.getElementById('admin-pass-input').value) === CONFIG_TIENDA.adminPassHash) {
                 isAdmin = true; cerrarModal('auth-modal'); abrirModal('admin-panel-modal');
                 renderAdminCatalogo();
                 escucharPedidosAdmin();
-                notificar("Modo Administrador");
-            } else { notificar("Clave denegada", "error"); }
+                notificar("Has ingresado al Panel de Control");
+            } else { notificar("Clave de seguridad denegada", "error"); }
         };
 
-        // Renderizado del Catálogo en el Panel de Admin
+        // Tab: Catálogo Editable
         function renderAdminCatalogo() {
             const container = document.getElementById('admin-catalogo-list');
             container.innerHTML = menuData.map((item, index) => `
-                <div class="bg-white p-4 rounded-xl border border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-3 shadow-sm">
+                <div class="bg-white p-5 rounded-2xl border border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-4 shadow-sm hover:shadow-md transition-shadow">
                     <div>
-                        <label class="text-[10px] font-bold text-gray-500 uppercase">Nombre del Producto</label>
-                        <input type="text" id="cat-name-${index}" value="${item.name}" class="border p-2 w-full text-sm rounded bg-gray-50 focus:bg-white">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1 block">Nombre del Producto</label>
+                        <input type="text" id="cat-name-${index}" value="${item.name}" class="border border-gray-300 p-2.5 w-full text-sm rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-rose-500 outline-none transition-all">
                     </div>
                     <div>
-                        <label class="text-[10px] font-bold text-gray-500 uppercase">Precio (€)</label>
-                        <input type="number" step="0.01" id="cat-price-${index}" value="${item.price}" class="border p-2 w-full text-sm rounded bg-gray-50 focus:bg-white">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1 block">Precio (€)</label>
+                        <input type="number" step="0.01" id="cat-price-${index}" value="${item.price}" class="border border-gray-300 p-2.5 w-full text-sm rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-rose-500 outline-none transition-all">
                     </div>
                     <div class="md:col-span-2">
-                        <label class="text-[10px] font-bold text-gray-500 uppercase">Descripción</label>
-                        <input type="text" id="cat-desc-${index}" value="${item.desc}" class="border p-2 w-full text-sm rounded bg-gray-50 focus:bg-white">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1 block">Descripción detallada</label>
+                        <input type="text" id="cat-desc-${index}" value="${item.desc}" class="border border-gray-300 p-2.5 w-full text-sm rounded-lg bg-gray-50 focus:bg-white focus:ring-2 focus:ring-rose-500 outline-none transition-all">
                     </div>
                     <div class="md:col-span-2">
-                        <label class="text-[10px] font-bold text-gray-500 uppercase">URL de la Imagen</label>
-                        <input type="text" id="cat-img-${index}" value="${item.img}" class="border p-2 w-full text-sm rounded font-mono text-gray-500 bg-gray-50">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1 block">URL de la Imagen Fotográfica</label>
+                        <input type="text" id="cat-img-${index}" value="${item.img}" class="border border-gray-300 p-2.5 w-full text-sm rounded-lg font-mono text-gray-500 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-rose-500 outline-none transition-all">
                     </div>
                 </div>
             `).join('');
@@ -429,48 +452,52 @@
                 item.img = document.getElementById(`cat-img-${index}`).value;
             });
             localStorage.setItem('ole_pizza_menu_data', JSON.stringify(menuData));
-            renderMenu(); // Actualiza el front-end
-            notificar("¡Carta actualizada con éxito!");
+            renderMenu(); // Actualiza la UI frontal en caliente
+            notificar("¡Carta guardada y actualizada con éxito!");
         };
 
-        // Escuchar Pedidos y Actualizar Estatus
+        // Tab: Gestión de Pedidos y Estatus
         function escucharPedidosAdmin() {
             db.collection("pedidos").orderBy("fecha", "desc").onSnapshot((snapshot) => {
                 const container = document.getElementById('admin-view-pedidos');
                 container.innerHTML = "";
                 
                 if (snapshot.empty) {
-                    container.innerHTML = '<p class="col-span-full text-center text-gray-400 py-10">No hay pedidos registrados.</p>';
+                    container.innerHTML = '<p class="col-span-full text-center text-gray-400 py-10 font-medium text-lg">No hay pedidos en curso en este momento.</p>';
                     return;
                 }
 
                 snapshot.forEach(doc => {
                     const orden = doc.data();
-                    let colorEstatus = "bg-amber-100 text-amber-800";
-                    if (orden.estatus === "En Preparación") colorEstatus = "bg-blue-100 text-blue-800";
-                    if (orden.estatus === "Despachado") colorEstatus = "bg-green-100 text-green-800";
+                    // Colores dinámicos según estatus
+                    let colorEstatus = "bg-amber-100 text-amber-800 border-amber-200";
+                    if (orden.estatus === "En Preparación") colorEstatus = "bg-blue-100 text-blue-800 border-blue-200";
+                    if (orden.estatus === "Despachado") colorEstatus = "bg-green-100 text-green-800 border-green-200";
 
                     container.innerHTML += `
-                        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+                        <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
                             <div>
-                                <div class="flex justify-between items-center border-b pb-2 mb-2">
-                                    <span class="font-black text-slate-900">${orden.id}</span>
-                                    <span class="${colorEstatus} text-xs px-2 py-1 rounded font-bold">${orden.estatus}</span>
+                                <div class="flex justify-between items-center border-b border-gray-100 pb-3 mb-3">
+                                    <span class="font-black text-slate-900 text-lg">${orden.id}</span>
+                                    <span class="${colorEstatus} border text-xs px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">${orden.estatus}</span>
                                 </div>
-                                <p class="text-sm font-bold">${orden.cliente} <span class="text-[10px] bg-slate-200 px-1 rounded ml-1">${orden.tipoEntrega}</span></p>
-                                <p class="text-xs text-gray-500 mb-2">${orden.telefono} | ${orden.direccion}</p>
-                                <div class="text-xs bg-gray-50 p-2 rounded mb-3 border">
-                                    <strong>Items:</strong><br> ${orden.items.join('<br>')}
+                                <p class="text-base font-bold text-slate-800 mb-1">${orden.cliente} <span class="text-[10px] bg-slate-800 text-white px-2 py-0.5 rounded-full ml-1 align-middle uppercase">${orden.tipoEntrega}</span></p>
+                                <p class="text-xs text-gray-500 mb-3 leading-relaxed">📞 ${orden.telefono}<br>📍 ${orden.direccion}</p>
+                                <div class="text-xs bg-gray-50 p-3 rounded-xl mb-4 border border-gray-100 text-slate-600 font-medium">
+                                    <strong class="text-slate-800 block mb-1 uppercase tracking-wider text-[10px]">Productos Ordenados:</strong>
+                                    ${orden.items.join('<br>')}
                                 </div>
-                                <p class="text-xs text-gray-500"><strong>Pago:</strong> ${orden.metodoPago} (Ref: ${orden.referencia || 'N/A'})</p>
-                                <p class="font-black text-green-600 text-lg mb-3">€${parseFloat(orden.total).toFixed(2)}</p>
+                                <div class="flex justify-between items-end mb-4">
+                                    <p class="text-xs text-gray-500 max-w-[50%]"><strong>Método:</strong><br>${orden.metodoPago}<br><span class="truncate block" title="${orden.referencia || 'N/A'}">Ref: ${orden.referencia || 'N/A'}</span></p>
+                                    <p class="font-black text-rose-600 text-2xl font-mono">€${parseFloat(orden.total).toFixed(2)}</p>
+                                </div>
                             </div>
                             
-                            <!-- Botones de Control de Estatus -->
-                            <div class="grid grid-cols-3 gap-1 pt-2 border-t">
-                                <button onclick="window.cambiarEstatus('${orden.id}', 'Recibido')" class="bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-bold py-2 rounded">Recibido</button>
-                                <button onclick="window.cambiarEstatus('${orden.id}', 'En Preparación')" class="bg-blue-500 hover:bg-blue-600 text-white text-[10px] font-bold py-2 rounded">Preparando</button>
-                                <button onclick="window.cambiarEstatus('${orden.id}', 'Despachado')" class="bg-green-500 hover:bg-green-600 text-white text-[10px] font-bold py-2 rounded">Despachar</button>
+                            <!-- Control de Estatus Táctil -->
+                            <div class="grid grid-cols-3 gap-2 pt-3 border-t border-gray-100">
+                                <button onclick="window.cambiarEstatus('${orden.id}', 'Recibido')" class="bg-amber-50 hover:bg-amber-500 hover:text-white text-amber-700 border border-amber-200 text-[10px] font-bold py-2 rounded-lg transition-colors uppercase tracking-wider">Recibido</button>
+                                <button onclick="window.cambiarEstatus('${orden.id}', 'En Preparación')" class="bg-blue-50 hover:bg-blue-500 hover:text-white text-blue-700 border border-blue-200 text-[10px] font-bold py-2 rounded-lg transition-colors uppercase tracking-wider">Preparando</button>
+                                <button onclick="window.cambiarEstatus('${orden.id}', 'Despachado')" class="bg-green-50 hover:bg-green-500 hover:text-white text-green-700 border border-green-200 text-[10px] font-bold py-2 rounded-lg transition-colors uppercase tracking-wider">Despachado</button>
                             </div>
                         </div>
                     `;
@@ -481,13 +508,13 @@
         window.cambiarEstatus = async (orderId, nuevoEstatus) => {
             try {
                 await db.collection("pedidos").doc(orderId).update({ estatus: nuevoEstatus });
-                notificar(`El pedido ${orderId} ahora está: ${nuevoEstatus}`);
+                notificar(`Orden ${orderId} actualizada a: ${nuevoEstatus}`);
             } catch (error) {
-                notificar("Error al actualizar estatus", "error");
+                notificar("Error al sincronizar estatus", "error");
             }
         };
 
-        // Lógica Pestañas Admin
+        // Lógica Visual Pestañas Admin
         document.getElementById('admin-tab-pedidos-btn').onclick = () => {
             document.getElementById('admin-view-pedidos').classList.remove('hidden');
             document.getElementById('admin-view-catalogo').classList.add('hidden');
@@ -506,7 +533,7 @@
             document.getElementById('admin-tab-pedidos-btn').classList.remove('border-b-2', 'bg-white');
         };
 
-        // Helpers Modales
+        // Helpers Básicos
         const overlay = document.getElementById('modal-overlay');
         function abrirModal(id) { document.getElementById(id).classList.remove('hidden'); if(id !== 'cart-sidebar') overlay.classList.remove('hidden'); }
         function cerrarModal(id, useOverlay = true) { document.getElementById(id).classList.add(id === 'cart-sidebar' ? 'translate-x-full' : 'hidden'); if(useOverlay) overlay.classList.add('hidden'); }
@@ -526,8 +553,8 @@
         function notificar(msg, type='success') {
             const toast = document.getElementById('toast-container');
             const el = document.createElement('div');
-            el.className = `bg-${type==='error'?'red':'green'}-600 text-white px-4 py-2 rounded shadow-lg text-sm font-bold toast-notification`;
-            el.textContent = msg;
+            el.className = `bg-${type==='error'?'red':'green'}-600 text-white px-5 py-3 rounded-xl shadow-xl text-sm font-bold toast-notification flex items-center gap-2`;
+            el.innerHTML = type === 'error' ? `⚠️ <span>${msg}</span>` : `✅ <span>${msg}</span>`;
             toast.appendChild(el);
             setTimeout(() => el.remove(), 3000);
         }
