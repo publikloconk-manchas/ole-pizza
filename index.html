@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Olé Pizza | Plataforma Oficial de Pedidos</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Firebase Compatibilidad (Permite abrir localmente sin errores) -->
+    <!-- Firebase Compatibilidad -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -19,32 +17,35 @@
         body { font-family: 'Roboto', sans-serif; background-color: #f8f9fa; }
         h1, h2, h3, h4, .font-heading { font-family: 'Montserrat', sans-serif; }
         .hide-scroll::-webkit-scrollbar { display: none; }
+        .toast-notification { animation: slideUp 0.3s ease-out forwards, fadeOut 0.3s ease-in 2.7s forwards; }
+        @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
     </style>
 </head>
 <body class="text-gray-800 antialiased pt-20">
 
     <div id="toast-container" class="fixed bottom-5 right-5 z-[100] flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- Barra de Navegación -->
+    <!-- Navegación -->
     <nav class="fixed top-0 left-0 w-full bg-[#0f172a] text-white shadow-xl z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between h-20 items-center">
+        <div class="max-w-7xl mx-auto px-4 flex justify-between h-20 items-center">
             <div class="cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
                 <span class="text-2xl font-black text-rose-500 font-heading">OLÉ PIZZA 🍕</span>
             </div>
             
             <div class="hidden lg:flex bg-slate-800 rounded-full p-1 mx-4 border border-slate-700">
-                <button class="bg-rose-600 shadow-md text-white font-bold py-2 px-6 rounded-full">🛵 Delivery</button>
-                <button class="text-gray-300 font-bold py-2 px-6 rounded-full hover:text-white">🏪 Recoger</button>
+                <button id="btn-type-delivery" onclick="setOrderType('Delivery')" class="bg-rose-600 shadow-md text-white font-bold py-2 px-6 rounded-full transition-all">🛵 Delivery</button>
+                <button id="btn-type-pickup" onclick="setOrderType('Retiro')" class="text-gray-300 font-bold py-2 px-6 rounded-full hover:text-white transition-all">🏪 Recoger</button>
             </div>
 
             <div class="flex items-center space-x-2 sm:space-x-3">
                 <button id="btn-user-profile" class="bg-slate-800 text-gray-300 border border-slate-700 hover:bg-slate-700 px-3 py-2 rounded-full text-xs sm:text-sm font-bold flex items-center gap-1">
-                    <span>👤</span> <span id="nav-user-text" class="hidden sm:inline">Iniciar Sesión</span>
+                    <span>👤</span> <span id="nav-user-text">Ingresar</span>
                 </button>
                 <button id="btn-admin-auth" class="bg-slate-800 text-rose-400 border border-slate-700 hover:bg-slate-700 px-3 py-2 rounded-full text-xs sm:text-sm font-bold flex items-center gap-1">
                     <span>🔑</span> <span class="hidden sm:inline">Admin</span>
                 </button>
-                <button id="cart-toggle" class="relative bg-rose-600 hover:bg-rose-700 text-white p-2.5 sm:p-3 rounded-full shadow-lg flex items-center justify-center">
+                <button id="cart-toggle" class="relative bg-rose-600 hover:bg-rose-700 text-white p-2.5 sm:p-3 rounded-full shadow-lg">
                     <span class="text-lg sm:text-xl">🛒</span>
                     <span id="cart-count" class="absolute -top-1 -right-1 bg-amber-500 text-slate-900 text-[10px] sm:text-xs font-black px-1.5 py-0.5 rounded-full border-2 border-white">0</span>
                 </button>
@@ -52,58 +53,41 @@
         </div>
     </nav>
 
-    <!-- Banners Promocionales -->
+    <!-- Banners -->
     <header class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="lg:col-span-2 relative bg-slate-900 rounded-3xl overflow-hidden shadow-lg min-h-[380px] flex items-center p-8 sm:p-12 text-white">
                 <div class="absolute inset-0 opacity-40 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80');"></div>
                 <div class="relative z-10 max-w-md">
-                    <span class="bg-rose-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">¡El Sabor que se Comparte!</span>
-                    <h1 class="text-4xl sm:text-5xl font-black mt-4 mb-4 leading-tight uppercase font-heading">Empieza tu<br><span class="text-amber-400">Pedido Web</span></h1>
-                    <p class="text-gray-200 mb-6">Pide en línea y recibe caliente en la puerta de tu casa.</p>
+                    <span class="bg-rose-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Pide ahora</span>
+                    <h1 class="text-4xl sm:text-5xl font-black mt-4 mb-4 leading-tight uppercase font-heading">Sabor de<br><span class="text-amber-400">Verdad</span></h1>
                 </div>
             </div>
             <div class="flex flex-col gap-6">
-                <div class="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 rounded-3xl p-6 shadow-lg text-white relative overflow-hidden flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-2xl font-black uppercase font-heading">Mega Calzone</h3>
-                        <p class="text-xs text-amber-100 mt-1">Relleno de puro queso.</p>
-                    </div>
-                </div>
-                <div class="flex-1 bg-gradient-to-r from-rose-600 to-red-700 rounded-3xl p-6 shadow-lg text-white relative overflow-hidden flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-2xl font-black uppercase font-heading">Acompañantes</h3>
-                        <p class="text-xs text-rose-100 mt-1">Alitas y pan de ajo.</p>
-                    </div>
+                <div class="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 rounded-3xl p-6 shadow-lg text-white relative">
+                    <h3 class="text-2xl font-black uppercase font-heading">Ofertas</h3>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Catálogo -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-7xl mx-auto px-4 py-8">
         <h2 class="text-3xl font-black text-slate-900 uppercase font-heading mb-6 tracking-tight">Arma tu Menú</h2>
         <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
     </main>
 
-    <!-- Footer con Datos Configurables -->
+    <!-- Footer Configurable -->
     <footer class="bg-[#0f172a] text-white pt-12 pb-6 border-t-4 border-rose-600">
         <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-3 gap-8 text-sm text-gray-400">
-            <div>
-                <h3 class="text-xl font-heading font-extrabold text-white mb-3">OLÉ PIZZA 🍕</h3>
-                <p>La mejor pizza de la ciudad directa a tu puerta.</p>
-            </div>
+            <div><h3 class="text-xl font-heading font-extrabold text-white mb-3">OLÉ PIZZA 🍕</h3></div>
             <div>
                 <h4 class="font-bold text-white mb-3 uppercase text-amber-400">Contacto</h4>
-                <p>📞 Teléfono: <span id="footer-telefono">Cargando...</span></p>
-                <p>✉️ Email: <span id="footer-email">Cargando...</span></p>
-            </div>
-            <div>
-                <h4 class="font-bold text-white mb-3 uppercase text-amber-400">Ubicación</h4>
-                <p id="footer-direccion">Cargando...</p>
+                <p>📞 <span id="footer-telefono">...</span></p>
             </div>
         </div>
     </footer>
+
+    <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-60 z-[55] hidden"></div>
 
     <!-- Carrito Lateral -->
     <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full sm:w-[400px] bg-white shadow-2xl z-[60] transform translate-x-full transition-transform flex flex-col">
@@ -117,46 +101,32 @@
                 <span class="text-base font-bold font-heading">Total Neto</span>
                 <span id="cart-total" class="text-xl font-black text-rose-600 font-mono">€0.00</span>
             </div>
-            <button id="btn-open-checkout" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-4 rounded-xl uppercase font-heading">
-                Confirmar y Pedir
-            </button>
+            <button id="btn-open-checkout" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-4 rounded-xl uppercase font-heading">Confirmar y Pedir</button>
         </div>
     </div>
 
-    <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-60 z-[55] hidden"></div>
-
-    <!-- Modal Checkout / Confirmación de Pago -->
+    <!-- Modal Checkout -->
     <div id="checkout-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl p-6 z-[70] w-11/12 max-w-lg hidden">
-        <div class="flex justify-between items-center mb-4">
+        <div class="flex justify-between items-center mb-4 border-b pb-2">
             <h3 class="text-lg font-bold font-heading">Procesar Pago</h3>
             <button id="close-checkout" class="text-gray-400 text-2xl">&times;</button>
         </div>
         <div class="space-y-4">
-            <div class="grid grid-cols-2 gap-2">
-                <input type="text" id="chk-name" placeholder="Nombre Receptor" class="border rounded p-2 text-sm">
-                <input type="tel" id="chk-phone" placeholder="Teléfono" class="border rounded p-2 text-sm">
-            </div>
+            <input type="text" id="chk-name" class="w-full border rounded p-2 text-sm bg-gray-100" readonly>
+            <input type="tel" id="chk-phone" class="w-full border rounded p-2 text-sm bg-gray-100" readonly>
             <textarea id="chk-address" rows="2" placeholder="Dirección de entrega" class="w-full border rounded p-2 text-sm"></textarea>
-            
-            <div class="bg-amber-50 p-3 rounded border border-amber-200 text-xs text-gray-700">
-                <p class="font-bold text-amber-800 mb-1">🏦 Datos para el Pago:</p>
-                <p id="info-pago-movil"></p>
-                <p id="info-transferencia" class="mt-1 border-t border-amber-200 pt-1"></p>
-            </div>
-
             <div class="grid grid-cols-2 gap-2">
                 <select id="chk-metodo" class="border rounded p-2 text-sm bg-white">
                     <option value="Pago Móvil">📱 Pago Móvil</option>
-                    <option value="Transferencia">🏢 Transferencia</option>
                     <option value="Efectivo">💵 Efectivo al recibir</option>
                 </select>
                 <input type="text" id="chk-ref" placeholder="Nro de Referencia" class="border rounded p-2 text-sm">
             </div>
-            <button id="btn-submit-order" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl uppercase text-sm font-heading shadow-md">Enviar Pedido Ahora</button>
+            <button id="btn-submit-order" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl uppercase text-sm shadow-md">Enviar Pedido</button>
         </div>
     </div>
 
-    <!-- Modal Login / Registro Cliente -->
+    <!-- Modal Login/Registro -->
     <div id="user-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl p-6 z-[70] w-11/12 max-w-sm hidden">
         <div class="flex justify-between items-center mb-4 border-b pb-2">
             <h3 class="text-xl font-black font-heading">Perfil de Cliente</h3>
@@ -176,7 +146,7 @@
             <div id="form-signup" class="space-y-3 hidden">
                 <input type="text" id="reg-user" placeholder="Usuario" class="w-full border p-2 rounded text-sm">
                 <input type="password" id="reg-pass" placeholder="Clave" class="w-full border p-2 rounded text-sm">
-                <input type="text" id="reg-name" placeholder="Nombre y Apellido" class="w-full border p-2 rounded text-sm">
+                <input type="text" id="reg-name" placeholder="Nombre Completo" class="w-full border p-2 rounded text-sm">
                 <input type="tel" id="reg-phone" placeholder="Teléfono" class="w-full border p-2 rounded text-sm">
                 <button id="btn-signup" class="w-full bg-rose-600 text-white font-bold py-2 rounded uppercase text-sm">Registrarse</button>
             </div>
@@ -185,120 +155,103 @@
         <div id="user-logged-in-state" class="hidden space-y-4">
             <div class="bg-slate-50 p-3 rounded border text-sm text-center">
                 <p>Hola, <strong id="profile-name" class="text-rose-600"></strong></p>
-                <p class="text-xs text-gray-500 mt-1">Listo para hacer tus pedidos más rápido.</p>
+                <p class="text-xs text-gray-500">Sesión iniciada correctamente.</p>
             </div>
             <button id="btn-logout" class="w-full bg-gray-200 text-gray-700 font-bold py-2 rounded text-sm">Cerrar Sesión</button>
         </div>
     </div>
 
-    <!-- Modal Admin Auth -->
+    <!-- Modal Admin Login -->
     <div id="auth-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl p-6 z-[70] w-11/12 max-w-sm hidden">
-        <h3 class="text-lg font-bold text-slate-900 mb-2 font-heading">Acceso Admin</h3>
-        <input type="password" id="admin-pass-input" placeholder="Clave de seguridad" class="w-full border rounded p-3 text-sm mb-3">
-        <button id="btn-submit-auth" class="w-full bg-[#0f172a] text-white py-2 rounded font-bold">Ingresar al Panel</button>
+        <h3 class="text-lg font-bold text-slate-900 mb-2 font-heading">Acceso Administrador</h3>
+        <input type="password" id="admin-pass-input" placeholder="Clave secreta" class="w-full border rounded p-3 text-sm mb-3">
+        <button id="btn-submit-auth" class="w-full bg-[#0f172a] text-white py-2 rounded font-bold">Ingresar</button>
         <button id="btn-close-auth" class="w-full text-gray-500 text-sm mt-2 font-bold">Cancelar</button>
     </div>
 
-    <!-- Modal Panel Admin -->
+    <!-- Modal Panel Admin COMPLETO -->
     <div id="admin-panel-modal" class="fixed inset-4 sm:inset-10 bg-white rounded-3xl shadow-2xl z-[70] flex flex-col hidden">
         <div class="bg-[#0f172a] text-white p-5 rounded-t-3xl flex justify-between items-center">
-            <h3 class="text-lg font-bold font-heading">Recepción de Pedidos (En Vivo)</h3>
+            <h3 class="text-lg font-bold font-heading">Panel de Control General</h3>
             <button id="close-admin-panel" class="text-white text-2xl">&times;</button>
         </div>
-        <div class="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-50">
-            <div id="admin-orders-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <p class="text-gray-500 col-span-full text-center py-10">Buscando pedidos recientes...</p>
+        
+        <!-- Pestañas Admin -->
+        <div class="flex border-b border-gray-200 bg-gray-50">
+            <button id="admin-tab-pedidos-btn" class="flex-1 py-3 text-sm font-bold text-rose-600 border-b-2 border-rose-600 bg-white">🛎️ Gestión de Pedidos</button>
+            <button id="admin-tab-catalogo-btn" class="flex-1 py-3 text-sm font-bold text-gray-500 hover:text-slate-800">🍕 Editor de Carta</button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50">
+            <!-- Vista de Pedidos -->
+            <div id="admin-view-pedidos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <p class="text-gray-500 col-span-full text-center py-10">Buscando pedidos en tiempo real...</p>
+            </div>
+
+            <!-- Vista de Catálogo (Editor) -->
+            <div id="admin-view-catalogo" class="hidden space-y-4 max-w-4xl mx-auto">
+                <div class="bg-amber-50 border border-amber-200 p-3 rounded text-xs text-amber-800 mb-4">
+                    <strong>Atención:</strong> Los cambios que hagas aquí se guardarán permanentemente en la página.
+                </div>
+                <div id="admin-catalogo-list" class="space-y-4"></div>
+                <button onclick="window.guardarCatalogoAdmin()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl mt-4 text-sm shadow-md">💾 Guardar Cambios en la Carta</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Tracker -->
-    <div id="tracker-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl p-6 z-[70] w-11/12 max-w-sm hidden text-center">
-        <h3 class="text-xl font-black font-heading mb-2">🍕 Tu Pedido ha sido Enviado</h3>
-        <p class="text-sm text-gray-500 mb-6">El restaurante ha recibido tu orden y está validando el pago.</p>
-        <div class="animate-pulse bg-amber-100 text-amber-800 p-3 rounded-xl text-sm font-bold mb-4">
-            Estatus: Recibido en sistema
-        </div>
-        <button id="btn-close-tracker" class="bg-slate-900 text-white font-bold px-6 py-2 rounded-xl">Entendido</button>
-    </div>
-
-    <!-- SCRIPT PRINCIPAL -->
     <script>
-        // =======================================================
-        // ⚙️ PANEL DE CONFIGURACIÓN EDITABLE (Edita esto fácilmente)
-        // =======================================================
         const CONFIG_TIENDA = {
             telefono: "0412-1234567",
-            email: "pedidos@olepizza.com",
-            direccion: "Av. Principal, Edif. Olé, Caracas.",
-            pagoMovil: {
-                banco: "Mercantil (0105)",
-                rif: "J-12345678-9",
-                telefono: "0412-5551234"
-            },
-            transferencia: "Cta. Corriente Banesco: 0134-0000-00-0000000000",
-            // Esta clave no se puede leer a simple vista (está en Base64). 
-            // b2xlMjAyNg== significa "ole2026"
-            adminPassHash: "b2xlMjAyNg==" 
+            adminPassHash: "b2xlMjAyNg==" // Clave: ole2026
         };
 
-        // Rellenar datos en el HTML automáticamente
         document.getElementById('footer-telefono').textContent = CONFIG_TIENDA.telefono;
-        document.getElementById('footer-email').textContent = CONFIG_TIENDA.email;
-        document.getElementById('footer-direccion').textContent = CONFIG_TIENDA.direccion;
-        document.getElementById('info-pago-movil').textContent = `Pago Móvil: ${CONFIG_TIENDA.pagoMovil.banco} | ${CONFIG_TIENDA.pagoMovil.rif} | ${CONFIG_TIENDA.pagoMovil.telefono}`;
-        document.getElementById('info-transferencia').textContent = `Transferencia: ${CONFIG_TIENDA.transferencia}`;
 
-        // =======================================================
-        // 🔥 CONFIGURACIÓN FIREBASE
-        // =======================================================
+        // Firebase Setup
         const firebaseConfig = {
             apiKey: "AIzaSyA_Bpp1VJXp1d_zewEiUh6u_kWCVFtcJjI",
             authDomain: "ole-pizza.firebaseapp.com",
             projectId: "ole-pizza",
-            storageBucket: "ole-pizza.firebasestorage.app",
-            messagingSenderId: "517301641486",
-            appId: "1:517301641486:web:8b2b9cb7be55c1cee8775f"
+            storageBucket: "ole-pizza.firebasestorage.app"
         };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
-        auth.signInAnonymously().catch(e => console.warn("Modo local activado", e));
+        auth.signInAnonymously().catch(e => console.log(e));
 
-        // =======================================================
-        // 🍕 DATOS Y ESTADO DE LA APLICACIÓN
-        // =======================================================
-        const initialMenu = [
+        // Data Local
+        const defaultMenu = [
             { id: 1, name: 'Margarita Especial', price: 10.90, img: 'https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?auto=format&fit=crop&w=600&q=80', desc: 'Salsa napolitana y mozzarella.' },
             { id: 2, name: 'Doble Pepperoni', price: 13.50, img: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=600&q=80', desc: 'Doble porción de pepperoni rústico.' },
             { id: 3, name: 'Barbacoa Suprema', price: 14.90, img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80', desc: 'Carne, tocineta y salsa BBQ.' },
             { id: 4, name: 'Alitas Ahumadas', price: 6.90, img: 'https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&w=600&q=80', desc: 'Bañadas en salsa especial.' }
         ];
 
+        let menuData = JSON.parse(localStorage.getItem('ole_pizza_menu_data')) || defaultMenu;
         let cart = [];
         let currentUser = JSON.parse(localStorage.getItem('ole_pizza_user')) || null;
         let isAdmin = false;
+        let orderType = 'Delivery';
 
-        // =======================================================
-        // 🛒 LÓGICA DE INTERFAZ Y CARRITO
-        // =======================================================
-        function initApp() {
-            renderMenu();
-            updateUserUI();
-        }
+        window.setOrderType = (type) => {
+            orderType = type;
+            document.getElementById('btn-type-delivery').className = type === 'Delivery' ? "bg-rose-600 shadow-md text-white font-bold py-2 px-6 rounded-full transition-all" : "text-gray-300 font-bold py-2 px-6 rounded-full hover:text-white transition-all";
+            document.getElementById('btn-type-pickup').className = type === 'Retiro' ? "bg-rose-600 shadow-md text-white font-bold py-2 px-6 rounded-full transition-all" : "text-gray-300 font-bold py-2 px-6 rounded-full hover:text-white transition-all";
+        };
 
+        // UI Pública
         function renderMenu() {
             const grid = document.getElementById('product-grid');
-            grid.innerHTML = initialMenu.map(item => `
-                <div class="bg-white p-4 rounded-2xl shadow-md border border-gray-100 flex flex-col justify-between hover:-translate-y-1 transition duration-300">
+            grid.innerHTML = menuData.map(item => `
+                <div class="bg-white p-4 rounded-2xl shadow-md border border-gray-100 flex flex-col justify-between">
                     <div>
                         <img src="${item.img}" class="w-full h-40 object-cover rounded-xl mb-3">
                         <h3 class="font-bold text-slate-900">${item.name}</h3>
                         <p class="text-xs text-gray-500 mt-1">${item.desc}</p>
                     </div>
                     <div class="mt-4 flex justify-between items-center">
-                        <span class="font-black text-lg text-rose-600">€${item.price.toFixed(2)}</span>
+                        <span class="font-black text-lg text-rose-600">€${parseFloat(item.price).toFixed(2)}</span>
                         <button onclick="window.addToCart(${item.id})" class="bg-slate-900 text-white font-bold px-4 py-2 rounded-lg text-xs hover:bg-rose-600 transition">Agregar</button>
                     </div>
                 </div>
@@ -306,11 +259,16 @@
         }
 
         window.addToCart = (id) => {
-            const product = initialMenu.find(p => p.id === id);
+            if (!currentUser) {
+                notificar("¡Debes iniciar sesión para hacer pedidos!", "error");
+                abrirModal('user-modal');
+                return;
+            }
+            const product = menuData.find(p => p.id === id);
             const exists = cart.find(i => i.id === id);
             if (exists) exists.quantity++; else cart.push({...product, quantity: 1});
             updateCart();
-            notificar(`¡${product.name} agregado!`);
+            notificar(`Se agregó ${product.name} a la cesta`);
         };
 
         function updateCart() {
@@ -321,14 +279,12 @@
                 document.getElementById('cart-total').textContent = '€0.00';
                 return;
             }
-            
             let total = 0;
             container.innerHTML = cart.map(item => {
                 total += item.price * item.quantity;
-                return `
-                <div class="flex justify-between items-center bg-white p-3 rounded border mb-2 shadow-sm">
+                return `<div class="flex justify-between items-center bg-white p-3 rounded border mb-2 shadow-sm">
                     <div>
-                        <h4 class="font-bold text-sm text-slate-900">${item.name}</h4>
+                        <h4 class="font-bold text-sm">${item.name}</h4>
                         <span class="text-xs text-rose-600 font-bold">€${item.price.toFixed(2)}</span>
                     </div>
                     <div class="flex items-center gap-2 bg-gray-100 rounded px-2 py-1">
@@ -349,145 +305,138 @@
             updateCart();
         };
 
-        // =======================================================
-        // 🔐 SISTEMA DE USUARIOS (PERSISTENTE)
-        // =======================================================
         function updateUserUI() {
-            const btnText = document.getElementById('nav-user-text');
             if (currentUser) {
-                btnText.textContent = currentUser.nombre.split(' ')[0];
+                document.getElementById('nav-user-text').textContent = currentUser.nombre.split(' ')[0];
                 document.getElementById('user-logged-out-state').classList.add('hidden');
                 document.getElementById('user-logged-in-state').classList.remove('hidden');
                 document.getElementById('profile-name').textContent = currentUser.nombre;
-                
-                // Autorellenar checkout
                 document.getElementById('chk-name').value = currentUser.nombre;
                 document.getElementById('chk-phone').value = currentUser.telefono;
             } else {
-                btnText.textContent = "Ingresar";
+                document.getElementById('nav-user-text').textContent = "Ingresar";
                 document.getElementById('user-logged-out-state').classList.remove('hidden');
                 document.getElementById('user-logged-in-state').classList.add('hidden');
             }
         }
 
-        // Simulación de Registro / Login guardado en LocalStorage para no perderlo
+        // Auth Cliente
         document.getElementById('btn-signup').onclick = () => {
             const user = document.getElementById('reg-user').value;
             const pass = document.getElementById('reg-pass').value;
             const name = document.getElementById('reg-name').value;
             const phone = document.getElementById('reg-phone').value;
+            if(!user || !pass || !name) return notificar("Faltan datos", "error");
             
-            if(!user || !pass || !name) return notificar("Rellena los datos básicos", "error");
-
             const newUser = { usuario: user, clave: pass, nombre: name, telefono: phone };
-            
-            // Guardar localmente
             let localUsers = JSON.parse(localStorage.getItem('ole_users_db')) || {};
             localUsers[user] = newUser;
             localStorage.setItem('ole_users_db', JSON.stringify(localUsers));
             
             currentUser = newUser;
             localStorage.setItem('ole_pizza_user', JSON.stringify(currentUser));
-            
-            updateUserUI();
-            cerrarModal('user-modal');
-            notificar(`¡Bienvenido, ${name}!`);
+            updateUserUI(); cerrarModal('user-modal'); notificar(`¡Bienvenido!`);
         };
 
         document.getElementById('btn-login').onclick = () => {
             const user = document.getElementById('login-user').value;
             const pass = document.getElementById('login-pass').value;
             let localUsers = JSON.parse(localStorage.getItem('ole_users_db')) || {};
-            
             if(localUsers[user] && localUsers[user].clave === pass) {
                 currentUser = localUsers[user];
                 localStorage.setItem('ole_pizza_user', JSON.stringify(currentUser));
-                updateUserUI();
-                cerrarModal('user-modal');
-                notificar(`¡Hola de nuevo, ${currentUser.nombre}!`);
-            } else {
-                notificar("Usuario o clave incorrecta", "error");
-            }
+                updateUserUI(); cerrarModal('user-modal'); notificar("Sesión Iniciada");
+            } else { notificar("Usuario o clave incorrecta", "error"); }
         };
 
         document.getElementById('btn-logout').onclick = () => {
-            currentUser = null;
-            localStorage.removeItem('ole_pizza_user');
-            updateUserUI();
-            cerrarModal('user-modal');
-            notificar("Sesión cerrada");
+            currentUser = null; localStorage.removeItem('ole_pizza_user');
+            updateUserUI(); cerrarModal('user-modal');
         };
 
-        // =======================================================
-        // 💳 CHECKOUT Y ENVÍO A FIREBASE (CORREGIDO)
-        // =======================================================
+        // Checkout
         document.getElementById('btn-open-checkout').onclick = () => {
-            if (cart.length === 0) return notificar("Agrega productos primero", "error");
-            cerrarModal('cart-sidebar', false);
-            abrirModal('checkout-modal');
+            if (cart.length === 0) return notificar("Carrito vacío", "error");
+            cerrarModal('cart-sidebar', false); abrirModal('checkout-modal');
         };
 
         document.getElementById('btn-submit-order').onclick = async () => {
-            const name = document.getElementById('chk-name').value;
-            const phone = document.getElementById('chk-phone').value;
             const address = document.getElementById('chk-address').value;
-            const method = document.getElementById('chk-metodo').value;
-            const ref = document.getElementById('chk-ref').value;
-
-            if(!name || !phone || !address) return notificar("Completa los datos de envío", "error");
+            if(!address && orderType === 'Delivery') return notificar("Indica tu dirección", "error");
 
             const orderId = 'PED-' + Math.floor(Math.random() * 90000 + 10000);
-            let total = cart.reduce((s,i) => s + (i.price * i.quantity), 0);
-
             const payload = {
                 id: orderId,
-                cliente: name,
-                telefono: phone,
-                direccion: address,
-                metodoPago: method,
-                referencia: ref,
+                cliente: currentUser.nombre,
+                telefono: currentUser.telefono,
+                direccion: address || "Retiro en Local",
+                tipoEntrega: orderType,
+                metodoPago: document.getElementById('chk-metodo').value,
+                referencia: document.getElementById('chk-ref').value,
                 items: cart.map(i => `${i.quantity}x ${i.name}`),
-                total: total,
+                total: cart.reduce((s,i) => s + (i.price * i.quantity), 0),
                 fecha: new Date().toLocaleString(),
                 estatus: "Recibido"
             };
 
             try {
-                // Guardamos en la colección principal "pedidos" para fácil acceso
                 await db.collection("pedidos").doc(orderId).set(payload);
-                
-                // Limpiar carrito
-                cart = [];
-                updateCart();
-                cerrarModal('checkout-modal');
-                abrirModal('tracker-modal');
-                
-            } catch (error) {
-                console.error("Error guardando pedido:", error);
-                notificar("Error de conexión. Intenta de nuevo.", "error");
-            }
+                cart = []; updateCart(); cerrarModal('checkout-modal');
+                notificar("¡Pedido enviado a la cocina!");
+            } catch (error) { notificar("Error al guardar pedido", "error"); }
         };
 
-        // =======================================================
-        // 🛡️ PANEL DE ADMINISTRADOR (LECTURA EN VIVO)
-        // =======================================================
+        // Admin Panel & Lógica
         document.getElementById('btn-submit-auth').onclick = () => {
-            const input = document.getElementById('admin-pass-input').value;
-            // Validamos la clave usando Base64 (btoa). Evita dejar la clave en texto plano.
-            if (btoa(input) === CONFIG_TIENDA.adminPassHash) {
-                isAdmin = true;
-                cerrarModal('auth-modal');
-                abrirModal('admin-panel-modal');
+            if (btoa(document.getElementById('admin-pass-input').value) === CONFIG_TIENDA.adminPassHash) {
+                isAdmin = true; cerrarModal('auth-modal'); abrirModal('admin-panel-modal');
+                renderAdminCatalogo();
                 escucharPedidosAdmin();
-                notificar("Acceso concedido", "success");
-            } else {
-                notificar("Clave incorrecta", "error");
-            }
+                notificar("Modo Administrador");
+            } else { notificar("Clave denegada", "error"); }
         };
 
+        // Renderizado del Catálogo en el Panel de Admin
+        function renderAdminCatalogo() {
+            const container = document.getElementById('admin-catalogo-list');
+            container.innerHTML = menuData.map((item, index) => `
+                <div class="bg-white p-4 rounded-xl border border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-3 shadow-sm">
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">Nombre del Producto</label>
+                        <input type="text" id="cat-name-${index}" value="${item.name}" class="border p-2 w-full text-sm rounded bg-gray-50 focus:bg-white">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">Precio (€)</label>
+                        <input type="number" step="0.01" id="cat-price-${index}" value="${item.price}" class="border p-2 w-full text-sm rounded bg-gray-50 focus:bg-white">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">Descripción</label>
+                        <input type="text" id="cat-desc-${index}" value="${item.desc}" class="border p-2 w-full text-sm rounded bg-gray-50 focus:bg-white">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="text-[10px] font-bold text-gray-500 uppercase">URL de la Imagen</label>
+                        <input type="text" id="cat-img-${index}" value="${item.img}" class="border p-2 w-full text-sm rounded font-mono text-gray-500 bg-gray-50">
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.guardarCatalogoAdmin = () => {
+            menuData.forEach((item, index) => {
+                item.name = document.getElementById(`cat-name-${index}`).value;
+                item.price = parseFloat(document.getElementById(`cat-price-${index}`).value);
+                item.desc = document.getElementById(`cat-desc-${index}`).value;
+                item.img = document.getElementById(`cat-img-${index}`).value;
+            });
+            localStorage.setItem('ole_pizza_menu_data', JSON.stringify(menuData));
+            renderMenu(); // Actualiza el front-end
+            notificar("¡Carta actualizada con éxito!");
+        };
+
+        // Escuchar Pedidos y Actualizar Estatus
         function escucharPedidosAdmin() {
-            db.collection("pedidos").onSnapshot((snapshot) => {
-                const container = document.getElementById('admin-orders-list');
+            db.collection("pedidos").orderBy("fecha", "desc").onSnapshot((snapshot) => {
+                const container = document.getElementById('admin-view-pedidos');
                 container.innerHTML = "";
                 
                 if (snapshot.empty) {
@@ -497,20 +446,31 @@
 
                 snapshot.forEach(doc => {
                     const orden = doc.data();
+                    let colorEstatus = "bg-amber-100 text-amber-800";
+                    if (orden.estatus === "En Preparación") colorEstatus = "bg-blue-100 text-blue-800";
+                    if (orden.estatus === "Despachado") colorEstatus = "bg-green-100 text-green-800";
+
                     container.innerHTML += `
-                        <div class="bg-white p-4 rounded-xl border shadow-sm">
-                            <div class="flex justify-between border-b pb-2 mb-2">
-                                <span class="font-black text-rose-600">${orden.id}</span>
-                                <span class="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded font-bold">${orden.estatus}</span>
+                        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center border-b pb-2 mb-2">
+                                    <span class="font-black text-slate-900">${orden.id}</span>
+                                    <span class="${colorEstatus} text-xs px-2 py-1 rounded font-bold">${orden.estatus}</span>
+                                </div>
+                                <p class="text-sm font-bold">${orden.cliente} <span class="text-[10px] bg-slate-200 px-1 rounded ml-1">${orden.tipoEntrega}</span></p>
+                                <p class="text-xs text-gray-500 mb-2">${orden.telefono} | ${orden.direccion}</p>
+                                <div class="text-xs bg-gray-50 p-2 rounded mb-3 border">
+                                    <strong>Items:</strong><br> ${orden.items.join('<br>')}
+                                </div>
+                                <p class="text-xs text-gray-500"><strong>Pago:</strong> ${orden.metodoPago} (Ref: ${orden.referencia || 'N/A'})</p>
+                                <p class="font-black text-green-600 text-lg mb-3">€${parseFloat(orden.total).toFixed(2)}</p>
                             </div>
-                            <p class="text-sm font-bold">${orden.cliente}</p>
-                            <p class="text-xs text-gray-500 mb-2">${orden.telefono} | ${orden.direccion}</p>
-                            <div class="text-xs bg-gray-50 p-2 rounded mb-2">
-                                <strong>Items:</strong><br> ${orden.items.join('<br>')}
-                            </div>
-                            <div class="flex justify-between items-center mt-3 pt-2 border-t">
-                                <span class="text-xs font-bold text-gray-500">${orden.metodoPago} (Ref: ${orden.referencia || 'N/A'})</span>
-                                <span class="font-black text-green-600">€${orden.total.toFixed(2)}</span>
+                            
+                            <!-- Botones de Control de Estatus -->
+                            <div class="grid grid-cols-3 gap-1 pt-2 border-t">
+                                <button onclick="window.cambiarEstatus('${orden.id}', 'Recibido')" class="bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-bold py-2 rounded">Recibido</button>
+                                <button onclick="window.cambiarEstatus('${orden.id}', 'En Preparación')" class="bg-blue-500 hover:bg-blue-600 text-white text-[10px] font-bold py-2 rounded">Preparando</button>
+                                <button onclick="window.cambiarEstatus('${orden.id}', 'Despachado')" class="bg-green-500 hover:bg-green-600 text-white text-[10px] font-bold py-2 rounded">Despachar</button>
                             </div>
                         </div>
                     `;
@@ -518,48 +478,50 @@
             });
         }
 
-        // =======================================================
-        // ⚙️ MANEJO DE UI Y MODALES
-        // =======================================================
-        const overlay = document.getElementById('modal-overlay');
-        function abrirModal(id) {
-            document.getElementById(id).classList.remove('hidden');
-            if(id !== 'cart-sidebar') overlay.classList.remove('hidden');
-        }
-        function cerrarModal(id, useOverlay = true) {
-            document.getElementById(id).classList.add(id === 'cart-sidebar' ? 'translate-x-full' : 'hidden');
-            if(useOverlay) overlay.classList.add('hidden');
-        }
+        window.cambiarEstatus = async (orderId, nuevoEstatus) => {
+            try {
+                await db.collection("pedidos").doc(orderId).update({ estatus: nuevoEstatus });
+                notificar(`El pedido ${orderId} ahora está: ${nuevoEstatus}`);
+            } catch (error) {
+                notificar("Error al actualizar estatus", "error");
+            }
+        };
 
+        // Lógica Pestañas Admin
+        document.getElementById('admin-tab-pedidos-btn').onclick = () => {
+            document.getElementById('admin-view-pedidos').classList.remove('hidden');
+            document.getElementById('admin-view-catalogo').classList.add('hidden');
+            document.getElementById('admin-tab-pedidos-btn').classList.replace('text-gray-500', 'text-rose-600');
+            document.getElementById('admin-tab-pedidos-btn').classList.add('border-b-2', 'bg-white');
+            document.getElementById('admin-tab-catalogo-btn').classList.replace('text-rose-600', 'text-gray-500');
+            document.getElementById('admin-tab-catalogo-btn').classList.remove('border-b-2', 'bg-white');
+        };
+
+        document.getElementById('admin-tab-catalogo-btn').onclick = () => {
+            document.getElementById('admin-view-catalogo').classList.remove('hidden');
+            document.getElementById('admin-view-pedidos').classList.add('hidden');
+            document.getElementById('admin-tab-catalogo-btn').classList.replace('text-gray-500', 'text-rose-600');
+            document.getElementById('admin-tab-catalogo-btn').classList.add('border-b-2', 'bg-white');
+            document.getElementById('admin-tab-pedidos-btn').classList.replace('text-rose-600', 'text-gray-500');
+            document.getElementById('admin-tab-pedidos-btn').classList.remove('border-b-2', 'bg-white');
+        };
+
+        // Helpers Modales
+        const overlay = document.getElementById('modal-overlay');
+        function abrirModal(id) { document.getElementById(id).classList.remove('hidden'); if(id !== 'cart-sidebar') overlay.classList.remove('hidden'); }
+        function cerrarModal(id, useOverlay = true) { document.getElementById(id).classList.add(id === 'cart-sidebar' ? 'translate-x-full' : 'hidden'); if(useOverlay) overlay.classList.add('hidden'); }
+        
         document.getElementById('cart-toggle').onclick = () => { document.getElementById('cart-sidebar').classList.remove('translate-x-full'); };
         document.getElementById('close-cart').onclick = () => cerrarModal('cart-sidebar', false);
-        
         document.getElementById('btn-user-profile').onclick = () => abrirModal('user-modal');
         document.getElementById('close-user-modal').onclick = () => cerrarModal('user-modal');
-        
         document.getElementById('btn-admin-auth').onclick = () => abrirModal(isAdmin ? 'admin-panel-modal' : 'auth-modal');
         document.getElementById('btn-close-auth').onclick = () => cerrarModal('auth-modal');
         document.getElementById('close-admin-panel').onclick = () => cerrarModal('admin-panel-modal');
-        
         document.getElementById('close-checkout').onclick = () => cerrarModal('checkout-modal');
-        document.getElementById('btn-close-tracker').onclick = () => cerrarModal('tracker-modal');
 
-        document.getElementById('tab-signup').onclick = () => {
-            document.getElementById('form-login').classList.add('hidden');
-            document.getElementById('form-signup').classList.remove('hidden');
-            document.getElementById('tab-signup').classList.replace('text-gray-500', 'bg-white');
-            document.getElementById('tab-signup').classList.add('shadow-sm', 'text-slate-900');
-            document.getElementById('tab-login').classList.replace('bg-white', 'text-gray-500');
-            document.getElementById('tab-login').classList.remove('shadow-sm', 'text-slate-900');
-        };
-        document.getElementById('tab-login').onclick = () => {
-            document.getElementById('form-signup').classList.add('hidden');
-            document.getElementById('form-login').classList.remove('hidden');
-            document.getElementById('tab-login').classList.replace('text-gray-500', 'bg-white');
-            document.getElementById('tab-login').classList.add('shadow-sm', 'text-slate-900');
-            document.getElementById('tab-signup').classList.replace('bg-white', 'text-gray-500');
-            document.getElementById('tab-signup').classList.remove('shadow-sm', 'text-slate-900');
-        };
+        document.getElementById('tab-signup').onclick = () => { document.getElementById('form-login').classList.add('hidden'); document.getElementById('form-signup').classList.remove('hidden'); };
+        document.getElementById('tab-login').onclick = () => { document.getElementById('form-signup').classList.add('hidden'); document.getElementById('form-login').classList.remove('hidden'); };
 
         function notificar(msg, type='success') {
             const toast = document.getElementById('toast-container');
@@ -570,9 +532,7 @@
             setTimeout(() => el.remove(), 3000);
         }
 
-        // Arrancar
-        window.onload = initApp;
-
+        window.onload = () => { renderMenu(); updateUserUI(); };
     </script>
 </body>
 </html>
