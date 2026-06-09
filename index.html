@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Firebase Compatibilidad -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -22,11 +21,14 @@
         @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
     </style>
 </head>
-<body class="text-gray-800 antialiased pt-20">
+<body class="text-gray-800 antialiased pt-20 relative">
 
     <div id="toast-container" class="fixed bottom-5 right-5 z-[100] flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- Navegación Limpia -->
+    <button id="floating-tracker-btn" onclick="abrirModal('user-modal')" class="fixed bottom-6 left-6 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-3 rounded-full shadow-2xl font-bold flex items-center gap-2 hidden z-[45] transition-transform transform hover:scale-105 border-2 border-indigo-400">
+        <span class="animate-pulse">🛵</span> <span>Ver mi pedido</span>
+    </button>
+
     <nav class="fixed top-0 left-0 w-full bg-[#0f172a] text-white shadow-xl z-50">
         <div class="max-w-7xl mx-auto px-4 flex justify-between h-20 items-center">
             <div class="cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
@@ -48,7 +50,6 @@
         </div>
     </nav>
 
-    <!-- Banner Hero Principal -->
     <header class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="relative bg-slate-900 rounded-3xl overflow-hidden shadow-2xl min-h-[450px] flex items-center p-8 sm:p-14 text-white">
             <div class="absolute inset-0 opacity-50 bg-cover bg-center transition-transform duration-700 hover:scale-105" style="background-image: url('https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80');"></div>
@@ -64,12 +65,11 @@
     <main id="menu-section" class="max-w-7xl mx-auto px-4 py-8">
         <div class="flex justify-between items-end mb-8 border-b-2 border-gray-100 pb-4">
             <h2 class="text-3xl font-black text-slate-900 uppercase font-heading tracking-tight">Arma tu Menú</h2>
-            <span class="text-xs font-bold text-gray-400 bg-gray-100 px-3 py-1 rounded-full">Tasa BCV: <span id="indicador-tasa">Calculando...</span></span>
+            <span class="text-xs font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full border border-gray-200">Tasa BCV: <span id="indicador-tasa" class="text-slate-900">Calculando...</span></span>
         </div>
         <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"></div>
     </main>
 
-    <!-- Footer Configurable -->
     <footer class="bg-[#0f172a] text-white pt-12 pb-6 border-t-4 border-rose-600 mt-12">
         <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-3 gap-8 text-sm text-gray-400">
             <div><h3 class="text-xl font-heading font-extrabold text-white mb-3">OLÉ PIZZA 🍕</h3></div>
@@ -82,7 +82,6 @@
 
     <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-60 z-[55] hidden transition-opacity"></div>
 
-    <!-- Carrito Lateral -->
     <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full sm:w-[400px] bg-white shadow-2xl z-[60] transform translate-x-full transition-transform flex flex-col">
         <div class="bg-[#0f172a] text-white p-5 flex justify-between items-center">
             <h2 class="text-lg font-bold font-heading">🛒 Orden Actual</h2>
@@ -95,14 +94,13 @@
                 <span id="cart-total" class="text-2xl font-black text-rose-600 font-mono">USD $0.00</span>
             </div>
             <div class="flex justify-between items-center mb-5">
-                <span class="text-xs font-bold text-gray-500">Total Bs</span>
+                <span class="text-xs font-bold text-gray-500">Equivalente Bs</span>
                 <span id="cart-total-bs" class="text-sm font-bold text-gray-500 font-mono">Bs. 0.00</span>
             </div>
             <button id="btn-open-checkout" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-4 rounded-xl uppercase font-heading shadow-md transition-colors">Confirmar y Pedir</button>
         </div>
     </div>
 
-    <!-- Modal Checkout -->
     <div id="checkout-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl p-6 sm:p-8 z-[70] w-11/12 max-w-lg hidden">
         <div class="flex justify-between items-center mb-6 border-b pb-3">
             <h3 class="text-xl font-bold font-heading text-slate-900">Procesar Pago</h3>
@@ -136,7 +134,6 @@
         </div>
     </div>
 
-    <!-- Modal Login/Registro & Perfil Cliente -->
     <div id="user-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl p-6 sm:p-8 z-[70] w-11/12 max-w-sm hidden">
         <div class="flex justify-between items-center mb-6 border-b pb-3">
             <h3 class="text-xl font-black font-heading text-slate-900">Perfil de Cliente</h3>
@@ -167,14 +164,12 @@
                 <p class="text-slate-600">Hola, <strong id="profile-name" class="text-rose-600 text-lg block mt-1"></strong></p>
             </div>
             
-            <!-- TARJETA DE ESTATUS DE PEDIDO (NUEVO) -->
             <div id="mi-pedido-status" class="w-full"></div>
 
             <button id="btn-logout" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-xl text-sm transition-colors mt-2">Cerrar Sesión</button>
         </div>
     </div>
 
-    <!-- Modal Admin Login -->
     <div id="auth-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl p-6 sm:p-8 z-[70] w-11/12 max-w-sm hidden">
         <h3 class="text-xl font-bold text-slate-900 mb-4 font-heading border-b pb-3">Acceso Administrador</h3>
         <input type="password" id="admin-pass-input" placeholder="Clave secreta" class="w-full border border-gray-300 rounded-xl p-3 text-sm mb-4 outline-none focus:ring-2 focus:ring-slate-900">
@@ -182,7 +177,6 @@
         <button id="btn-close-auth" class="w-full text-gray-500 hover:text-gray-800 text-sm mt-3 font-bold py-2 transition-colors">Cancelar</button>
     </div>
 
-    <!-- Modal Panel Admin COMPLETO -->
     <div id="admin-panel-modal" class="fixed inset-2 sm:inset-10 bg-white rounded-3xl shadow-2xl z-[70] flex flex-col hidden overflow-hidden">
         <div class="bg-[#0f172a] text-white p-5 rounded-t-3xl flex justify-between items-center z-10 shadow-md">
             <h3 class="text-lg font-bold font-heading">Panel de Control General</h3>
@@ -212,7 +206,8 @@
     <script>
         const CONFIG_TIENDA = {
             telefono: "0412-1234567",
-            adminPassHash: "b2xlMjAyNg==" 
+            adminPassHash: "b2xlMjAyNg==", // Clave oculta: ole2026
+            tasaManual: 36.50 // RESGUARDO: Si la API del banco falla, usará esta tasa.
         };
         document.getElementById('footer-telefono').textContent = CONFIG_TIENDA.telefono;
 
@@ -226,23 +221,23 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
-        auth.signInAnonymously().catch(e => console.log(e));
+        auth.signInAnonymously().catch(e => console.log("Firebase Auth warning:", e));
 
-        // TASA BCV DINÁMICA
-        let tasaBCV = 0;
+        // TASA BCV BLINDADA (Con Respaldo)
+        let tasaBCV = CONFIG_TIENDA.tasaManual; 
         async function cargarTasaBCV() {
             try {
-                // API pública y estable de PyDolarVenezuela (Monitor BCV)
-                const res = await fetch('https://pydolarvenezuela-api.vercel.app/api/v1/dollar?monitor=bcv');
+                // API altamente estable de DolarAPI Venezuela
+                const res = await fetch('https://ve.dolarapi.com/v1/dolares/oficial');
                 const data = await res.json();
-                tasaBCV = data.monitor.price;
-                document.getElementById('indicador-tasa').textContent = `Bs. ${tasaBCV.toFixed(2)}`;
-                renderMenu(); // Refresca el menú para mostrar los Bs.
-                updateCart(); // Refresca el carrito
+                tasaBCV = data.promedio;
+                document.getElementById('indicador-tasa').textContent = `${tasaBCV.toFixed(2)}`;
             } catch (error) {
-                console.error("No se pudo cargar la tasa BCV", error);
-                document.getElementById('indicador-tasa').textContent = 'Fallo de conexión';
+                console.warn("API de dólar falló. Usando tasa manual de respaldo.", error);
+                document.getElementById('indicador-tasa').textContent = `${tasaBCV.toFixed(2)} (Manual)`;
             }
+            renderMenu(); 
+            updateCart(); 
         }
 
         const defaultMenu = [
@@ -293,7 +288,7 @@
                             <span class="font-black text-xl text-rose-600 font-mono">USD $${parseFloat(item.price).toFixed(2)}</span>
                             <button onclick="window.addToCart(${item.id})" class="bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-rose-600 transition-colors shadow-md">Agregar</button>
                         </div>
-                        <span class="text-sm font-bold text-gray-400">Bs. ${tasaBCV > 0 ? (item.price * tasaBCV).toFixed(2) : '...'}</span>
+                        <span class="text-sm font-bold text-gray-400">Bs. ${(item.price * tasaBCV).toFixed(2)}</span>
                     </div>
                 </div>
             `).join('');
@@ -319,7 +314,7 @@
             let total = 0;
             container.innerHTML = cart.map(item => {
                 total += item.price * item.quantity;
-                let precioBs = tasaBCV > 0 ? `(Bs. ${(item.price * tasaBCV).toFixed(2)})` : '';
+                let precioBs = `(Bs. ${(item.price * tasaBCV).toFixed(2)})`;
                 return `<div class="flex justify-between items-center bg-white p-4 rounded-xl border border-gray-100 mb-3 shadow-sm">
                     <div>
                         <h4 class="font-bold text-sm text-slate-800">${item.name}</h4>
@@ -334,7 +329,7 @@
             }).join('');
             
             document.getElementById('cart-total').textContent = `USD $${total.toFixed(2)}`;
-            document.getElementById('cart-total-bs').textContent = `Bs. ${tasaBCV > 0 ? (total * tasaBCV).toFixed(2) : '...'}`;
+            document.getElementById('cart-total-bs').textContent = `Bs. ${(total * tasaBCV).toFixed(2)}`;
         }
 
         window.modQty = (id, delta) => {
@@ -345,33 +340,36 @@
             updateCart();
         };
 
-        // TRACKING DE ORDEN PARA EL CLIENTE
+        // TRACKING PERSISTENTE PARA EL CLIENTE
         function monitorearEstatusCliente(nombre) {
-            if (listenerPedido) listenerPedido(); // Limpiar si ya había uno
+            if (listenerPedido) listenerPedido(); 
             
             listenerPedido = db.collection("pedidos")
                 .where("cliente", "==", nombre)
                 .onSnapshot((snapshot) => {
                     const container = document.getElementById('mi-pedido-status');
+                    const floatingBtn = document.getElementById('floating-tracker-btn');
                     if (!container) return;
                     
                     if (snapshot.empty) {
                         container.innerHTML = '<p class="text-xs text-gray-400 mt-4 border-t pt-4">No tienes pedidos en curso en este momento.</p>';
+                        floatingBtn.classList.add('hidden');
                         return;
                     }
 
-                    // Ordenamos localmente para evitar el error de "Falta de Índice" en Firebase
+                    // Ordenamos localmente (último pedido primero)
                     let ordenes = [];
                     snapshot.forEach(doc => ordenes.push(doc.data()));
                     ordenes.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
                     
                     const ultimaOrden = ordenes[0];
                     
-                    // Cálculo visual del progreso
+                    // Cálculo de progreso
                     let progreso = '10%'; let color = 'bg-amber-500';
                     if (ultimaOrden.estatus === 'En Preparación') { progreso = '50%'; color = 'bg-blue-500'; }
                     else if (ultimaOrden.estatus === 'Despachado') { progreso = '100%'; color = 'bg-green-500'; }
 
+                    // Tarjeta en el perfil
                     container.innerHTML = `
                         <div class="mt-4 p-5 bg-white border border-gray-200 shadow-sm rounded-2xl text-left">
                             <div class="flex justify-between items-end mb-2">
@@ -387,6 +385,13 @@
                             <p class="text-[10px] text-gray-400 mt-2 text-center italic">Este estatus se actualiza en tiempo real</p>
                         </div>
                     `;
+
+                    // Control del botón flotante
+                    if(ultimaOrden.estatus !== 'Entregado') {
+                        floatingBtn.classList.remove('hidden');
+                    } else {
+                        floatingBtn.classList.add('hidden');
+                    }
                 });
         }
 
@@ -398,14 +403,13 @@
                 document.getElementById('profile-name').textContent = currentUser.nombre;
                 document.getElementById('chk-name').value = currentUser.nombre;
                 document.getElementById('chk-phone').value = currentUser.telefono;
-                
-                // Iniciamos el tracker de su pedido
                 monitorearEstatusCliente(currentUser.nombre);
             } else {
                 document.getElementById('nav-user-text').textContent = "Ingresar";
                 document.getElementById('user-logged-out-state').classList.remove('hidden');
                 document.getElementById('user-logged-in-state').classList.add('hidden');
-                if (listenerPedido) listenerPedido(); // Apagar tracker si desloguea
+                if (listenerPedido) listenerPedido();
+                document.getElementById('floating-tracker-btn').classList.add('hidden');
             }
         }
 
@@ -454,7 +458,7 @@
 
             const orderId = 'PED-' + Math.floor(Math.random() * 90000 + 10000);
             const totalUSD = cart.reduce((s,i) => s + (i.price * i.quantity), 0);
-            const totalBS = tasaBCV > 0 ? (totalUSD * tasaBCV).toFixed(2) : "Calculando...";
+            const totalBS = (totalUSD * tasaBCV).toFixed(2);
 
             const payload = {
                 id: orderId,
@@ -468,7 +472,7 @@
                 total: totalUSD,
                 totalBS: totalBS,
                 fecha: new Date().toLocaleString(),
-                timestamp: Date.now(), // Para ordenar el tracker
+                timestamp: Date.now(),
                 estatus: "Recibido"
             };
 
@@ -476,7 +480,7 @@
                 await db.collection("pedidos").doc(orderId).set(payload);
                 cart = []; updateCart(); cerrarModal('checkout-modal');
                 notificar("¡Pedido enviado a la cocina de Olé Pizza!");
-                abrirModal('user-modal'); // Abrimos el perfil para que vea su tracker
+                abrirModal('user-modal'); 
             } catch (error) { notificar("Error al comunicar con la base de datos", "error"); }
         };
 
