@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Olé Pizza | Plataforma Oficial de Pedidos</title>
+    <!-- Tailwind CSS para Estilos Adaptables y Accesibles -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js para Análisis Visual de Preferencias -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Roboto:wght@300;400;500;700&display=swap');
+        body { font-family: 'Roboto', sans-serif; background-color: #f8f9fa; }
+        h1, h2, h3, h4, .font-heading { font-family: 'Montserrat', sans-serif; }
+        .chart-container { position: relative; width: 100%; max-width: 400px; margin: 0 auto; height: 300px; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+        .toast-notification { animation: slideUp 0.3s ease-out forwards, fadeOut 0.3s ease-in 2.7s forwards; }
+        @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+    </style>
+    <!-- Paleta de colores elegida: Olé Navy (#0f172a), Olé Red (#e11d48), Accent Gold (#f59e0b) -->
+</head>
+<body class="text-gray-800 antialiased pt-20">
+
+    <div id="toast-container" class="fixed bottom-5 right-5 z-[100] flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Barra de Navegación UX Domino's Style (Optimizado para Móviles) -->
+    <nav class="fixed top-0 left-0 w-full bg-[#0f172a] text-white shadow-xl z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <!-- Logo Compacto en Móvil -->
+                <div class="flex-shrink-0 flex items-center cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                    <span class="text-xl sm:text-2xl md:text-3xl font-heading font-extrabold text-rose-500 tracking-tighter">OLÉ <span class="text-white">PIZZA</span> 🍕</span>
+                </div>
+                
+                <!-- Selector de Tipo de Pedido (Escritorio) -->
+                <div class="hidden lg:flex bg-slate-800 rounded-full p-1 mx-4 border border-slate-700">
+                    <button id="btn-delivery" class="bg-rose-600 shadow-md text-white font-bold py-2 px-6 rounded-full transition-all duration-200">🛵 Delivery</button>
+                    <button id="btn-pickup" class="text-gray-300 font-bold py-2 px-6 rounded-full transition-all duration-200 hover:text-white">🏪 Recoger en Tienda</button>
+                </div>
+
+                <!-- Botones de Acción (Textos ocultos en móvil para dar espacio al Carrito) -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <button id="btn-user-profile" class="bg-slate-800 text-gray-300 border border-slate-700 hover:bg-slate-700 px-3 py-2 rounded-full text-xs sm:text-sm font-bold transition flex items-center gap-1">
+                        <span>👤</span> <span id="nav-user-text" class="hidden sm:inline">Iniciar Sesión</span>
+                    </button>
+                    <button id="btn-admin-auth" class="bg-slate-800 text-rose-400 border border-slate-700 hover:bg-slate-700 px-3 py-2 rounded-full text-xs sm:text-sm font-bold transition flex items-center gap-1">
+                        <span>🔑</span> <span class="hidden sm:inline">Admin</span>
+                    </button>
+                    <button id="cart-toggle" class="relative bg-rose-600 hover:bg-rose-700 text-white p-2.5 sm:p-3 rounded-full shadow-lg transition transform hover:scale-105 flex items-center justify-center">
+                        <span class="text-lg sm:text-xl">🛒</span>
+                        <span id="cart-count" class="absolute -top-1 -right-1 bg-amber-500 text-slate-900 text-[10px] sm:text-xs font-black px-1.5 py-0.5 rounded-full border-2 border-white">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Selector Móvil -->
+        <div class="lg:hidden bg-slate-800 p-2 flex justify-center border-t border-slate-700">
+            <div class="bg-slate-900 rounded-full p-1 flex w-full max-w-sm">
+                <button id="btn-delivery-mob" class="flex-1 bg-rose-600 text-white font-bold py-1 rounded-full text-xs">🛵 Delivery</button>
+                <button id="btn-pickup-mob" class="flex-1 text-gray-400 font-bold py-1 rounded-full text-xs">🏪 Recoger</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Banners de Promoción -->
+    <header id="promos-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 relative bg-slate-900 rounded-3xl overflow-hidden shadow-lg min-h-[380px] flex items-center p-8 sm:p-12 text-white">
+                <div class="absolute inset-0 opacity-40 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1200&q=80');"></div>
+                <div class="relative z-10 max-w-md">
+                    <span class="bg-rose-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">¡El Sabor que se Comparte!</span>
+                    <h1 class="text-4xl sm:text-5xl font-black mt-4 mb-4 leading-tight uppercase font-heading">Empieza tu<br><span class="text-amber-400">Pedido Web</span></h1>
+                    <p class="text-gray-200 text-sm sm:text-base mb-6">Consigue 2 Pizzas Medianas Premium + Bebida por un precio imbatible de lanzamiento.</p>
+                    <button onclick="document.getElementById('menu-section').scrollIntoView({behavior: 'smooth'})" class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition font-heading">Ordena en Línea</button>
+                </div>
+            </div>
+            <div class="flex flex-col gap-6">
+                <div class="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 rounded-3xl p-6 shadow-lg text-white relative overflow-hidden flex flex-col justify-between min-h-[177px]">
+                    <div class="absolute right-[-20px] bottom-[-20px] text-9xl opacity-15 select-none">🥟</div>
+                    <div>
+                        <h3 class="text-2xl font-black uppercase font-heading">Mega Calzone</h3>
+                        <p class="text-xs text-amber-100 mt-1">Relleno de puro queso y tus ingredientes favoritos.</p>
+                    </div>
+                    <div class="text-2xl font-black mt-4">Desde <span class="text-slate-900 bg-white px-2 py-0.5 rounded-lg text-xl font-mono">€5.99</span></div>
+                </div>
+                <div class="flex-1 bg-gradient-to-r from-rose-600 to-red-700 rounded-3xl p-6 shadow-lg text-white relative overflow-hidden flex flex-col justify-between min-h-[177px]">
+                    <div class="absolute right-[-10px] bottom-[-10px] text-9xl opacity-15 select-none">🍗</div>
+                    <div>
+                        <h3 class="text-2xl font-black uppercase font-heading">Acompañantes</h3>
+                        <p class="text-xs text-rose-100 mt-1">Alitas, patatas rústicas y pan de ajo supremo.</p>
+                    </div>
+                    <div class="text-2xl font-black mt-4">Desde <span class="text-slate-900 bg-white px-2 py-0.5 rounded-lg text-xl font-mono">€3.50</span></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Catálogo Adaptable -->
+    <main id="menu-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 border-b border-gray-200 pb-4 gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-slate-900 uppercase font-heading tracking-tight">Arma tu Menú</h2>
+                <p class="text-gray-500 text-sm mt-1 font-heading">Selecciona los productos y se añadirán directo a tu carrito.</p>
+            </div>
+            <div class="flex overflow-x-auto hide-scroll space-x-2 pb-1">
+                <button class="filter-btn active bg-[#0f172a] text-white px-5 py-2 rounded-xl font-bold whitespace-nowrap transition text-sm shadow-md" data-category="all">Todos</button>
+                <button class="filter-btn bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 px-5 py-2 rounded-xl font-bold whitespace-nowrap transition text-sm" data-category="pizzas">🍕 Pizzas</button>
+                <button class="filter-btn bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 px-5 py-2 rounded-xl font-bold whitespace-nowrap transition text-sm" data-category="entrantes">🥖 Entrantes</button>
+                <button class="filter-btn bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 px-5 py-2 rounded-xl font-bold whitespace-nowrap transition text-sm" data-category="bebidas">🥤 Bebidas</button>
+            </div>
+        </div>
+        <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+    </main>
+
+    <!-- Sección Analítica -->
+    <section class="bg-white border-t border-gray-200 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-center gap-12">
+            <div class="chart-container">
+                <canvas id="popularityChart"></canvas>
+            </div>
+            <div class="max-w-md">
+                <span class="text-xs font-bold text-rose-600 uppercase tracking-widest block mb-1">Métricas de la Comunidad</span>
+                <h3 class="font-black text-2xl text-slate-900 mb-3 font-heading">Los más pedidos de la semana</h3>
+                <p class="text-gray-600 text-sm leading-relaxed mb-4">El Pepperoni Especial mantiene la delantera con un rotundo 45% de preferencia en pedidos locales de nuestra fiel clientela.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-[#0f172a] text-white pt-12 pb-6 border-t-4 border-rose-600">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 sm:grid-cols-3 gap-8 text-sm text-gray-400">
+            <div>
+                <h3 class="text-xl font-heading font-extrabold text-white mb-3">OLÉ PIZZA 🍕</h3>
+                <p class="leading-relaxed">Inspirado en los mejores flujos de conversión de comida rápida digital del mundo.</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-white mb-3 uppercase tracking-wider text-amber-400">Contacto</h4>
+                <p>📞 Teléfono: 900-OLE-PIZZA</p>
+            </div>
+            <div>
+                <h4 class="font-bold text-white mb-3 uppercase tracking-wider text-amber-400">Legal</h4>
+                <p><a href="#" class="hover:text-white transition">Términos y Condiciones de Uso</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Carrito Lateral Desplegable -->
+    <div id="cart-sidebar" class="fixed inset-y-0 right-0 w-full sm:w-[440px] bg-white shadow-2xl z-[60] transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="bg-[#0f172a] text-white p-5 flex justify-between items-center shadow-lg">
+            <h2 class="text-lg font-bold font-heading flex items-center gap-2">🛒 Orden Actual</h2>
+            <button id="close-cart" class="text-white hover:text-rose-400 text-3xl font-light">&times;</button>
+        </div>
+        <div id="cart-items" class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+            <div id="empty-cart-msg" class="text-center text-gray-400 py-16">
+                <span class="text-6xl block mb-4">🍕</span>
+                <p class="font-semibold text-gray-600 font-heading">Tu cesta de pedidos está vacía</p>
+            </div>
+        </div>
+        <div class="bg-white p-5 border-t border-gray-200 shadow-xl">
+            <div class="flex justify-between items-center text-sm mb-2 text-gray-600">
+                <span>Monto Subtotal</span>
+                <span id="cart-subtotal" class="font-bold text-slate-900 font-mono">€0.00</span>
+            </div>
+            <div class="flex justify-between items-center mb-5 pt-3 border-t border-gray-100">
+                <span class="text-base font-bold text-slate-900 font-heading">Total Neto</span>
+                <span id="cart-total" class="text-xl font-black text-rose-600 font-mono">€0.00</span>
+            </div>
+            <button id="btn-checkout" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-4 rounded-xl shadow-lg text-sm uppercase tracking-wider font-heading">
+                Proceder al Checkout
+            </button>
+        </div>
+    </div>
+
+    <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-60 z-[55] hidden transition-opacity"></div>
+
+    <!-- MODAL: REGISTRO / PERFIL DE CLIENTES (LOGIN / REGISTRO ROBUSTO) -->
+    <div id="user-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl p-6 z-[70] w-11/12 max-w-md hidden">
+        <div class="flex justify-between items-center border-b pb-3 mb-4">
+            <h3 class="text-xl font-black text-slate-900 font-heading">Perfil de Cliente</h3>
+            <button id="close-user-modal" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+        </div>
+        
+        <!-- Estado: No logueado (Formulario Login/Signup) -->
+        <div id="user-logged-out-state" class="space-y-4">
+            <!-- Pestañas para cambiar entre iniciar y registrar -->
+            <div class="flex p-1 bg-gray-100 rounded-xl">
+                <button id="user-tab-login" class="flex-1 py-2 text-xs sm:text-sm font-bold bg-white text-slate-900 rounded-lg shadow-sm transition">Iniciar Sesión</button>
+                <button id="user-tab-signup" class="flex-1 py-2 text-xs sm:text-sm font-bold text-gray-500 hover:text-slate-800 transition">Registrarse</button>
+            </div>
+
+            <!-- Formulario: INICIAR SESIÓN -->
+            <div id="form-login" class="space-y-3">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Nombre de Usuario</label>
+                    <input type="text" id="login-username" placeholder="juan123" class="w-full border rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Contraseña</label>
+                    <input type="password" id="login-password" placeholder="••••••••" class="w-full border rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+                </div>
+                <button id="btn-submit-login" class="w-full bg-rose-600 text-white font-bold py-3 rounded-xl text-sm uppercase tracking-wider transition font-heading font-heading">Ingresar</button>
+            </div>
+
+            <!-- Formulario: REGISTRARSE -->
+            <div id="form-signup" class="space-y-3 hidden">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Usuario</label>
+                        <input type="text" id="reg-username" placeholder="juan123" class="w-full border rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Contraseña</label>
+                        <input type="password" id="reg-password" placeholder="Clave nueva" class="w-full border rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Nombre Completo</label>
+                    <input type="text" id="reg-name" placeholder="Juan Pérez" class="w-full border rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Correo</label>
+                        <input type="email" id="reg-email" placeholder="juan@correo.com" class="w-full border rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Teléfono</label>
+                        <input type="tel" id="reg-phone" placeholder="0412-1234567" class="w-full border rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Dirección Exacta de Entrega</label>
+                    <textarea id="reg-address" rows="2" placeholder="Ej. Avenida Principal, Edif. Las Giras, Apto 5C" class="w-full border rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500"></textarea>
+                </div>
+                <button id="btn-submit-signup" class="w-full bg-rose-600 text-white font-bold py-3 rounded-xl text-sm uppercase tracking-wider transition font-heading font-heading">Registrarse y Crear Cuenta</button>
+            </div>
+        </div>
+
+        <!-- Estado: Logueado -->
+        <div id="user-logged-in-state" class="space-y-4 hidden">
+            <div class="bg-slate-50 p-4 rounded-xl border text-xs space-y-1">
+                <p class="font-bold text-sm text-slate-900" id="profile-name-text"></p>
+                <p id="profile-username-text"></p>
+                <p id="profile-email-text"></p>
+                <p id="profile-phone-text"></p>
+                <p id="profile-address-text" class="border-t pt-2 mt-2"></p>
+            </div>
+            <button id="btn-logout-user" class="w-full bg-gray-200 text-gray-700 font-bold py-2 rounded-xl text-xs uppercase">Cerrar Sesión</button>
+        </div>
+    </div>
+
+    <!-- MODAL: PASARELA DE PAGOS SELECCIONABLE -->
+    <div id="checkout-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl p-6 z-[70] w-11/12 max-w-lg h-[90vh] flex flex-col hidden">
+        <div class="bg-[#0f172a] text-white p-4 rounded-t-2xl flex justify-between items-center -mx-6 -mt-6 mb-4">
+            <h3 class="text-lg font-bold font-heading">Procesar Pago Seguro</h3>
+            <button id="close-checkout" class="text-white text-2xl leading-none">&times;</button>
+        </div>
+        <div class="flex-1 overflow-y-auto space-y-4 pr-1">
+            <div class="bg-rose-50 border border-rose-100 p-3 rounded-xl flex justify-between items-center">
+                <span class="text-xs font-bold text-rose-800">Total a pagar:</span>
+                <span id="checkout-total-text" class="text-lg font-black text-rose-600 font-mono">€0.00</span>
+            </div>
+            <div class="space-y-2 border-b pb-4">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900">1. Datos de Despacho</h4>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="chk-name" placeholder="Nombre Receptor" class="border rounded-lg p-2 text-xs">
+                    <input type="tel" id="chk-phone" placeholder="Teléfono" class="border rounded-lg p-2 text-xs">
+                </div>
+                <input type="text" id="chk-address" placeholder="Dirección obligatoria de despacho" class="border rounded-lg p-2 text-xs w-full">
+            </div>
+            <div class="space-y-3">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900">2. Método de Pago</h4>
+                <div class="grid grid-cols-3 gap-2">
+                    <button id="pay-method-movil" class="border-2 border-rose-600 bg-rose-50 text-rose-700 p-2 rounded-xl text-xs font-bold">📱 Pago Móvil</button>
+                    <button id="pay-method-trans" class="border-2 border-gray-200 p-2 rounded-xl text-xs font-bold text-gray-600">🏢 Transferencia</button>
+                    <button id="pay-method-debit" class="border-2 border-gray-200 p-2 rounded-xl text-xs font-bold text-gray-600">💳 T. Débito</button>
+                </div>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200">
+                <div id="form-pay-movil" class="space-y-2">
+                    <p class="text-[10px] text-gray-500 bg-amber-50 p-2 rounded border border-amber-100">Mercantil • RIF: J-12345678-9 • Tlf: 0412-5551234</p>
+                    <input type="text" id="pm-banco" placeholder="Banco Emisor" class="border rounded p-2 text-xs w-full">
+                    <input type="text" id="pm-ref" placeholder="Número de Referencia" class="border rounded p-2 text-xs w-full">
+                </div>
+                <div id="form-pay-trans" class="space-y-2 hidden">
+                    <p class="text-[10px] text-gray-500 bg-amber-50 p-2 rounded border border-amber-100">Corriente Mercantil: 0105-0000-00-0000000000</p>
+                    <input type="text" id="tx-ref" placeholder="Número de Confirmación" class="border rounded p-2 text-xs w-full">
+                </div>
+                <div id="form-pay-debit" class="space-y-2 hidden">
+                    <input type="text" id="card-number" placeholder="Número de Tarjeta (16 dígitos)" class="border rounded p-2 text-xs w-full">
+                </div>
+            </div>
+        </div>
+        <button id="btn-submit-payment" class="w-full bg-green-600 text-white font-bold py-3 rounded-xl mt-4 uppercase text-xs tracking-wider font-heading shadow-md">Verificar y Registrar Pedido</button>
+    </div>
+
+    <!-- MODAL: PIZZA TRACKER ASÍNCRONO EN VIVO -->
+    <div id="tracker-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl p-6 z-[70] w-11/12 max-w-lg hidden">
+        <h3 class="text-xl font-black text-center font-heading uppercase">Olé Pizza Tracker 🛵</h3>
+        <div class="space-y-6 mt-6">
+            <div class="relative flex justify-between items-center px-2">
+                <div class="absolute left-0 right-0 top-1/2 h-1 bg-gray-200 -translate-y-1/2"></div>
+                <div id="tracker-progress-line" class="absolute left-0 top-1/2 h-1 bg-green-500 -translate-y-1/2 transition-all duration-500" style="width: 0%"></div>
+                <div id="step-1" class="relative z-10 w-9 h-9 rounded-full bg-green-500 text-white flex items-center justify-center text-xs font-bold shadow-md">1</div>
+                <div id="step-2" class="relative z-10 w-9 h-9 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-bold shadow-md">2</div>
+                <div id="step-3" class="relative z-10 w-9 h-9 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-bold shadow-md">3</div>
+                <div id="step-4" class="relative z-10 w-9 h-9 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-bold shadow-md">4</div>
+            </div>
+            <div class="bg-slate-50 p-4 rounded-2xl border border-gray-100 text-center shadow-inner">
+                <p id="tracker-status-text" class="text-sm font-bold text-slate-900 font-heading">Esperando aprobación de cocina...</p>
+                <p id="tracker-subtext" class="text-xs text-gray-500 mt-1">El restaurante está validando tu comprobante de pago.</p>
+            </div>
+        </div>
+        <button id="btn-close-tracker" class="bg-[#0f172a] text-white font-bold px-8 py-2.5 rounded-xl text-xs mt-6 mx-auto block hidden font-heading shadow-md">Cerrar Monitor</button>
+    </div>
+
+    <!-- MODAL: CONSOLE ADMIN (Manejo de Carta, Recepción de Pedidos y Tracking) -->
+    <div id="admin-panel-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl z-[70] w-11/12 max-w-3xl h-[85vh] flex flex-col hidden">
+        <div class="bg-[#0f172a] text-white p-5 rounded-t-3xl flex justify-between items-center shadow-md">
+            <div>
+                <h3 class="text-lg font-bold font-heading">Panel Administrativo de Comandas</h3>
+                <p class="text-xs text-amber-400">Controla el estado de producción de tus despachos</p>
+            </div>
+            <button id="close-admin-panel" class="text-white text-2xl leading-none">&times;</button>
+        </div>
+        
+        <!-- Pestañas Administrativas -->
+        <div class="bg-slate-100 flex p-1 border-b border-gray-200">
+            <button id="tab-orders-btn" class="flex-1 py-2 text-sm font-bold text-slate-900 border-b-2 border-rose-600 bg-white transition font-heading">📥 Pedidos Recibidos</button>
+            <button id="tab-catalog-btn" class="flex-1 py-2 text-sm font-bold text-gray-500 hover:text-slate-800 transition font-heading">⚙️ Configurar Carta</button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 bg-slate-50 space-y-6">
+            <!-- TAB 1: Bandeja de Pedidos Reales -->
+            <div id="admin-tab-orders" class="space-y-4">
+                <h4 class="font-bold text-sm text-slate-900 uppercase font-heading">Lista de Comandas Recibidas (En Vivo)</h4>
+                <div id="admin-orders-list" class="space-y-3">
+                    <p class="text-xs text-gray-400 text-center py-8">Esperando por nuevas comandas desde dispositivos de clientes...</p>
+                </div>
+            </div>
+
+            <!-- TAB 2: Configuración de Productos -->
+            <div id="admin-tab-catalog" class="space-y-4 hidden">
+                <h4 class="font-bold text-sm text-slate-900 uppercase font-heading">Configuración de Carta</h4>
+                <div class="space-y-3" id="admin-product-list"></div>
+                <div class="p-4 bg-white border-t border-gray-100 flex justify-end gap-2 rounded-xl">
+                    <button id="btn-reset-default" class="bg-rose-600 text-white font-bold px-4 py-2 rounded-xl text-xs font-heading">Restaurar Todo</button>
+                    <button id="btn-save-admin-changes" class="bg-green-600 text-white font-bold py-2 px-6 rounded-xl text-sm font-heading">Guardar Cambios de Carta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Autenticación -->
+    <div id="auth-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl p-6 z-[70] w-11/12 max-w-sm hidden">
+        <h3 class="text-lg font-bold text-slate-900 mb-2 font-heading">Acceso Administrativo</h3>
+        <input type="password" id="admin-password-input" placeholder="Contraseña (ole2026)" class="w-full border rounded-xl p-3 text-sm mb-2 focus:outline-none focus:ring-2 focus:ring-rose-500">
+        <p id="auth-error-msg" class="text-rose-600 text-xs font-semibold mb-3 hidden">Contraseña inválida.</p>
+        <div class="flex justify-end gap-2"><button id="btn-cancel-auth" class="bg-gray-100 px-4 py-2 rounded-xl text-xs text-gray-600 font-bold">Cancelar</button><button id="btn-submit-auth" class="bg-[#0f172a] text-white px-4 py-2 rounded-xl text-xs font-bold">Ingresar</button></div>
+    </div>
+
+    <!-- MODAL DE ADVERTENCIA INTERACTIVO: CONFIGURACIÓN DE AUTH EN FIREBASE -->
+    <div id="auth-warning-modal" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-3xl shadow-2xl p-6 z-[70] w-11/12 max-w-md hidden">
+        <div class="text-center mb-4">
+            <span class="text-4xl">⚠️</span>
+            <h3 class="text-xl font-black text-rose-600 font-heading mt-2 uppercase">Configuración de Firebase</h3>
+            <p class="text-xs text-gray-500 mt-1">Habilita el inicio de sesión Anónimo en tu Consola</p>
+        </div>
+        <div class="space-y-3 text-xs text-gray-600 leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-100">
+            <p>El error <code class="bg-rose-50 text-rose-600 px-1 py-0.5 rounded font-mono">auth/configuration-not-found</code> indica que Firebase bloqueó la conexión porque no has activado el proveedor de autenticación anónima. Sigue estos sencillos pasos para activarlo:</p>
+            <ol class="list-decimal pl-4 space-y-2">
+                <li>Ve a tu consola de Firebase en <a href="https://console.firebase.google.com/" target="_blank" class="text-blue-600 font-bold underline">console.firebase.google.com</a></li>
+                <li>Entra en tu proyecto <strong class="text-slate-800">ole-pizza</strong>.</li>
+                <li>En el menú lateral, haz clic en <strong class="text-slate-800">Compilación (Build) &gt; Authentication</strong>.</li>
+                <li>Si es tu primera vez, haz clic en el botón <strong class="text-slate-800">Comenzar (Get Started)</strong>.</li>
+                <li>Dirígete a la pestaña <strong class="text-slate-800">Método de inicio de sesión (Sign-in method)</strong>.</li>
+                <li>Haz clic en el botón <strong class="text-slate-800">Agregar nuevo proveedor (Add new provider)</strong>.</li>
+                <li>Selecciona <strong class="text-slate-800">Anónimo (Anonymous)</strong> en la sección "Otros proveedores", actívalo y haz clic en <strong class="text-slate-800">Guardar</strong>.</li>
+            </ol>
+            <p class="text-[10px] text-rose-600 font-bold mt-2">💡 Nota de Respaldo: Hemos activado el modo de respaldo local offline temporal. El registro, la compra y el panel de administración funcionarán de forma simulada e inmediata en este navegador utilizando localStorage.</p>
+        </div>
+        <div class="mt-4 flex justify-end">
+            <button onclick="document.getElementById('auth-warning-modal').classList.add('hidden'); document.getElementById('modal-overlay').classList.add('hidden');" class="bg-[#0f172a] hover:bg-slate-800 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition font-heading">Cerrar</button>
+        </div>
+    </div>
+
+    <!-- SCRIPT DE CONFIGURACIÓN ÚNICA (UNIFICADO EN UN MÓDULO AL FINAL DE LA PÁGINA) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, query } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        // =======================================================
+        // 🔑 CREDENCIALES OFICIALES DE OLE PIZZA ACTIVAS
+        // =======================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_Bpp1VJXp1d_zewEiUh6u_kWCVFtcJjI",
+            authDomain: "ole-pizza.firebaseapp.com",
+            projectId: "ole-pizza",
+            storageBucket: "ole-pizza.firebasestorage.app",
+            messagingSenderId: "517301641486",
+            appId: "1:517301641486:web:8b2b9cb7be55c1cee8775f",
+            measurementId: "G-MQVQ5GV67K"
+        };
+
+        // Inicialización UNIFICADA del SDK de Firebase
+        let app, db, auth;
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch (initError) {
+            console.error("Error al inicializar Firebase SDK:", initError);
+        }
+        
+        const appId = "ole-pizza";
+
+        // --- MANEJO DEL CLIENTE DE AUTENTICACIÓN SEGURO (REGLA 3) ---
+        let fbUser = null;
+        window.usarLocalFallback = false;
+
+        // Declaración de showAuthWarningModal al inicio del bloque para evitar ReferenceError
+        const showAuthWarningModal = () => {
+            const modal = document.getElementById('auth-warning-modal');
+            const overlay = document.getElementById('modal-overlay');
+            if (modal) modal.classList.remove('hidden');
+            if (overlay) overlay.classList.remove('hidden');
+        };
+
+        const initAuth = async () => {
+            if (!auth) {
+                window.usarLocalFallback = true;
+                arrancarModoRespaldo();
+                return;
+            }
+            try {
+                const credentials = await signInAnonymously(auth);
+                fbUser = credentials.user;
+                window.fbUser = fbUser;
+                window.usarLocalFallback = false;
+                showNotification("Conectado con éxito a la nube.", "success");
+                
+                // Carga inicial tras autenticación exitosa
+                if (currentOrderId) {
+                    escucharPedidoEnFirebase(currentOrderId);
+                }
+                if (isAdminLoggedIn) {
+                    escucharTodosLosPedidos();
+                }
+            } catch (error) {
+                // Capturar específicamente el error de configuración para habilitar fallback local silencioso
+                window.usarLocalFallback = true;
+                
+                if (error.code === 'auth/configuration-not-found' || error.message.includes('configuration-not-found')) {
+                    showAuthWarningModal();
+                } else {
+                    showNotification("Iniciando en modo de contingencia local offline.", "warning");
+                }
+                arrancarModoRespaldo();
+            }
+        };
+
+        function arrancarModoRespaldo() {
+            // Arrancar de forma segura la lógica usando localStorage
+            if (currentOrderId) {
+                escucharPedidoEnFirebase(currentOrderId);
+            }
+            if (isAdminLoggedIn) {
+                escucharTodosLosPedidos();
+            }
+        }
+
+        // --- DECLARACIÓN DEL ESTADO ---
+        const initialMenuData = [
+            { id: 1, category: 'pizzas', name: 'Margarita Especial', desc: 'Salsa de tomates napolitanos, mozzarella premium y albahaca fresca.', price: 10.90, img: 'https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?auto=format&fit=crop&w=600&q=80' },
+            { id: 2, category: 'pizzas', name: 'Doble Pepperoni Rústico', desc: 'Salsa marinara casera, queso fundido y doble porción de pepperoni.', price: 13.50, img: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=600&q=80' },
+            { id: 3, category: 'pizzas', name: 'Barbacoa BBQ Suprema', desc: 'Salsa barbacoa dulce, carne de ternera, tocineta crujiente y cebolla.', price: 14.90, img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80' },
+            { id: 4, category: 'pizzas', name: 'Huerta de la Casa', desc: 'Mezcla balanceada de pimientos dulces, champiñones y aceitunas negras.', price: 12.80, img: 'https://images.unsplash.com/photo-1571066811602-71683a3f680d?auto=format&fit=crop&w=600&q=80' },
+            { id: 5, category: 'entrantes', name: 'Pan de Ajo con Queso', desc: 'Bastones de pan artesanal horneados con mantequilla de ajo y hierbas.', price: 4.50, img: 'https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?auto=format&fit=crop&w=600&q=80' },
+            { id: 6, category: 'entrantes', name: 'Alitas Ahumadas BBQ', desc: 'Jugosas alitas de pollo marinadas, horneadas and bañadas en salsa BBQ.', price: 6.90, img: 'https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&w=600&q=80' },
+            { id: 7, category: 'entrantes', name: 'Patatas Gajo Deluxe', desc: 'Patatas rústicas crujientes por fuera y tiernas por dentro.', price: 3.90, img: 'https://images.unsplash.com/photo-1576107232684-1279f390859f?auto=format&fit=crop&w=600&q=80' },
+            { id: 8, category: 'bebidas', name: 'Refresco Cola Frío 1L', desc: 'Envase familiar de refresco de cola tradicional servido helado.', price: 2.80, img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80' },
+            { id: 9, category: 'bebidas', name: 'Agua Pura Mineral', desc: 'Agua natural de manantial embotellada libre de gas.', price: 1.50, img: 'https://images.unsplash.com/photo-1608885898957-a599fb18ec3f?auto=format&fit=crop&w=600&q=80' },
+            { id: 10, category: 'bebidas', name: 'Cerveza Especial Olé', desc: 'Lata de cerveza artesanal rubia con lúpulo aromático premium.', price: 3.20, img: 'https://images.unsplash.com/photo-1608270586620-248524c67de9?auto=format&fit=crop&w=600&q=80' }
+        ];
+
+        let menuData = JSON.parse(localStorage.getItem('ole_pizza_menu_data')) || [...initialMenuData];
+        let cart = [];
+        let orderType = 'delivery'; 
+        let isAdminLoggedIn = false;
+        let currentUser = JSON.parse(localStorage.getItem('ole_pizza_user')) || null;
+        let selectedPaymentMethod = 'movil';
+        let unsubscribeTracker = null;
+        let currentOrderId = localStorage.getItem('ole_pizza_current_order_id') || null;
+
+        // Elementos DOM
+        const productGrid = document.getElementById('product-grid');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const cartToggle = document.getElementById('cart-toggle');
+        const cartSidebar = document.getElementById('cart-sidebar');
+        const closeCartBtn = document.getElementById('close-cart');
+        const modalOverlay = document.getElementById('modal-overlay');
+        const cartItemsContainer = document.getElementById('cart-items');
+        const emptyCartMsg = document.getElementById('empty-cart-msg');
+        const cartCountDisplay = document.getElementById('cart-count');
+        const cartSubtotalDisplay = document.getElementById('cart-subtotal');
+        const cartTotalDisplay = document.getElementById('cart-total');
+        const btnCheckout = document.getElementById('btn-checkout');
+
+        const btnUserProfile = document.getElementById('btn-user-profile');
+        const navUserText = document.getElementById('nav-user-text');
+        const userModal = document.getElementById('user-modal');
+        const closeUserModal = document.getElementById('close-user-modal');
+        const userLoggedOutState = document.getElementById('user-logged-out-state');
+        const userLoggedInState = document.getElementById('user-logged-in-state');
+        const btnLogoutUser = document.getElementById('btn-logout-user');
+
+        const checkoutModal = document.getElementById('checkout-modal');
+        const closeCheckout = document.getElementById('close-checkout');
+        const checkoutTotalText = document.getElementById('checkout-total-text');
+        const btnSubmitPayment = document.getElementById('btn-submit-payment');
+
+        const trackerModal = document.getElementById('tracker-modal');
+        const btnCloseTracker = document.getElementById('btn-close-tracker');
+        const trackerProgressLine = document.getElementById('tracker-progress-line');
+        const trackerStatusText = document.getElementById('tracker-status-text');
+        const trackerSubtext = document.getElementById('tracker-subtext');
+
+        const btnAdminAuth = document.getElementById('btn-admin-auth');
+        const authModal = document.getElementById('auth-modal');
+        const adminPasswordInput = document.getElementById('admin-password-input');
+        const authErrorMsg = document.getElementById('auth-error-msg');
+        const btnCancelAuth = document.getElementById('btn-cancel-auth');
+        const btnSubmitAuth = document.getElementById('btn-submit-auth');
+        const adminPanelModal = document.getElementById('admin-panel-modal');
+        const adminProductList = document.getElementById('admin-product-list');
+        const btnSaveAdminChanges = document.getElementById('btn-save-admin-changes');
+        const btnResetDefault = document.getElementById('btn-reset-default');
+        const closeAdminPanel = document.getElementById('close-admin-panel');
+
+        // Pestañas e Inputs de Autenticación de Cliente
+        const userTabLogin = document.getElementById('user-tab-login');
+        const userTabSignup = document.getElementById('user-tab-signup');
+        const formLogin = document.getElementById('form-login');
+        const formSignup = document.getElementById('form-signup');
+        const btnSubmitLogin = document.getElementById('btn-submit-login');
+        const btnSubmitSignup = document.getElementById('btn-submit-signup');
+
+        // Registro de funciones globales para compatibilidad móvil y llamadas inline
+        window.addToCart = addToCart;
+        window.updateQuantity = updateQuantity;
+        window.changeLiveStatus = changeLiveStatus;
+        window.escucharPedidoEnFirebase = escucharPedidoEnFirebase;
+        window.switchUserTab = switchUserTab;
+
+        // --- SISTEMA DE SEGUIMIENTO (TRACKER - SEGURIDAD REGLA 3) ---
+        function escucharPedidoEnFirebase(orderId) {
+            if (window.usarLocalFallback) {
+                const updateLocalTracker = () => {
+                    const localPedidos = JSON.parse(localStorage.getItem('ole_pizza_local_pedidos')) || {};
+                    const data = localPedidos[orderId];
+                    if (data) {
+                        const paso = data.paso || 1;
+                        const titulo = data.titulo || "Procesando...";
+                        const subtexto = data.subtexto || "";
+
+                        trackerStatusText.textContent = titulo;
+                        trackerSubtext.textContent = subtexto;
+
+                        if (paso === 1) trackerProgressLine.style.width = '0%';
+                        if (paso === 2) trackerProgressLine.style.width = '33%';
+                        if (paso === 3) trackerProgressLine.style.width = '66%';
+                        if (paso === 4) trackerProgressLine.style.width = '100%';
+
+                        const nodes = [document.getElementById('step-2'), document.getElementById('step-3'), document.getElementById('step-4')];
+                        nodes.forEach((n, i) => {
+                            if (paso > i + 1) {
+                                n.className = 'relative z-10 w-9 h-9 rounded-full bg-green-500 text-white flex items-center justify-center text-xs font-bold';
+                            } else {
+                                n.className = 'relative z-10 w-9 h-9 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-bold shadow';
+                            }
+                        });
+
+                        if (paso === 4) { btnCloseTracker.classList.remove('hidden'); } else { btnCloseTracker.classList.add('hidden'); }
+                    }
+                };
+
+                window.addEventListener('local_pedidos_update', updateLocalTracker);
+                window.addEventListener('storage', updateLocalTracker);
+                updateLocalTracker(); // Primera carga
+
+                unsubscribeTracker = () => {
+                    window.removeEventListener('local_pedidos_update', updateLocalTracker);
+                    window.removeEventListener('storage', updateLocalTracker);
+                };
+                return;
+            }
+
+            if (!db || !fbUser) return;
+            if (unsubscribeTracker) unsubscribeTracker();
+            
+            unsubscribeTracker = onSnapshot(doc(db, "artifacts", appId, "public", "data", "pedidos", orderId), (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.data();
+                    const paso = data.paso || 1;
+                    const titulo = data.titulo || "Procesando...";
+                    const subtexto = data.subtexto || "";
+
+                    trackerStatusText.textContent = titulo;
+                    trackerSubtext.textContent = subtexto;
+
+                    if (paso === 1) trackerProgressLine.style.width = '0%';
+                    if (paso === 2) trackerProgressLine.style.width = '33%';
+                    if (paso === 3) trackerProgressLine.style.width = '66%';
+                    if (paso === 4) trackerProgressLine.style.width = '100%';
+
+                    const nodes = [document.getElementById('step-2'), document.getElementById('step-3'), document.getElementById('step-4')];
+                    nodes.forEach((n, i) => {
+                        if (paso > i + 1) {
+                            n.className = 'relative z-10 w-9 h-9 rounded-full bg-green-500 text-white flex items-center justify-center text-xs font-bold';
+                        } else {
+                            n.className = 'relative z-10 w-9 h-9 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center text-xs font-bold shadow';
+                        }
+                    });
+
+                    if (paso === 4) { btnCloseTracker.classList.remove('hidden'); } else { btnCloseTracker.classList.add('hidden'); }
+                }
+            }, (error) => {
+                console.error("Error al escuchar cambios del pedido: ", error);
+            });
+        }
+
+        async function changeLiveStatus(orderId, paso, titulo, subtexto) {
+            if (window.usarLocalFallback) {
+                const localPedidos = JSON.parse(localStorage.getItem('ole_pizza_local_pedidos')) || {};
+                if (localPedidos[orderId]) {
+                    localPedidos[orderId].paso = paso;
+                    localPedidos[orderId].titulo = titulo;
+                    localPedidos[orderId].subtexto = subtexto;
+                    localStorage.setItem('ole_pizza_local_pedidos', JSON.stringify(localPedidos));
+                    window.dispatchEvent(new Event('local_pedidos_update'));
+                    showNotification(`Estatus de pedido #${orderId} cambiado localmente.`);
+                }
+                return;
+            }
+
+            if (!db || !fbUser) {
+                showNotification("No tienes permisos suficientes.", "error");
+                return;
+            }
+            try {
+                await setDoc(doc(db, "artifacts", appId, "public", "data", "pedidos", orderId), {
+                    paso: paso,
+                    titulo: titulo,
+                    subtexto: subtexto
+                }, { merge: true });
+                showNotification(`Estatus de pedido #${orderId} actualizado.`);
+            } catch (error) {
+                console.error("Error al actualizar estatus: ", error);
+                showNotification("Error actualizando la base de datos.", "error");
+            }
+        }
+
+        // --- SISTEMA DE RECEPCIÓN DE PEDIDOS EN PANEL (ADMIN - SEGURIDAD REGLA 3) ---
+        let unsubscribeOrdersList = null;
+
+        function escucharTodosLosPedidos() {
+            if (window.usarLocalFallback) {
+                const renderLocalOrders = () => {
+                    const listContainer = document.getElementById('admin-orders-list');
+                    listContainer.innerHTML = '';
+                    const localPedidos = JSON.parse(localStorage.getItem('ole_pizza_local_pedidos')) || {};
+                    const ordersList = Object.keys(localPedidos).map(id => ({ id, ...localPedidos[id] }));
+
+                    if (ordersList.length === 0) {
+                        listContainer.innerHTML = `<p class="text-xs text-gray-400 text-center py-8">No se han recibido pedidos locales.</p>`;
+                        return;
+                    }
+
+                    ordersList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                    ordersList.forEach((order) => {
+                        const orderCard = document.createElement('div');
+                        orderCard.className = 'bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3 text-left';
+                        
+                        let itemsHtml = '';
+                        if (order.items && order.items.length > 0) {
+                            order.items.forEach(it => {
+                                itemsHtml += `<span class="bg-gray-100 text-slate-800 text-[11px] px-2 py-0.5 rounded font-medium">${it.quantity}x ${it.name}</span> `;
+                            });
+                        }
+
+                        let payHtml = '';
+                        if (order.metodoPago === 'movil') {
+                            payHtml = `📱 Pago Móvil (Ref: ${order.detallesPago?.referencia || 'N/A'})`;
+                        } else if (order.metodoPago === 'trans') {
+                            payHtml = `🏢 Trans (Ref: ${order.detallesPago?.referencia || 'N/A'})`;
+                        } else {
+                            payHtml = `💳 T. Débito`;
+                        }
+
+                        orderCard.innerHTML = `
+                            <div class="flex justify-between items-start border-b pb-2">
+                                <div>
+                                    <span class="font-extrabold text-slate-900 text-xs sm:text-sm">Pedido #${order.id}</span>
+                                    <p class="text-[10px] text-gray-400 font-mono mt-0.5">${payHtml} <span class="text-rose-500 font-bold">(Modo de Respaldo)</span></p>
+                                </div>
+                                <span class="text-xs px-2 py-0.5 rounded font-black bg-amber-100 text-amber-800 uppercase">Estatus ${order.paso}</span>
+                            </div>
+                            <div class="text-xs space-y-1">
+                                <p><strong>Cliente:</strong> ${order.cliente} (${order.telefono})</p>
+                                <p><strong>Dirección:</strong> ${order.direccion}</p>
+                                <p class="pt-1"><strong>Productos:</strong></p>
+                                <div class="flex flex-wrap gap-1">${itemsHtml}</div>
+                                <p class="pt-1 text-rose-600 font-extrabold">Total: €${parseFloat(order.total || 0).toFixed(2)}</p>
+                            </div>
+                            <div class="grid grid-cols-4 gap-1 pt-2 border-t">
+                                <button onclick="window.changeLiveStatus('${order.id}', 1, 'Confirmando fondos...', 'Validando el pago de tu orden.')" class="bg-blue-600 hover:bg-blue-700 text-white p-1.5 rounded text-[10px] font-bold font-heading">1. Recibido</button>
+                                <button onclick="window.changeLiveStatus('${order.id}', 2, '¡Orden en Cocina! 👨‍🍳', 'Preparando la masa artesanal.')" class="bg-amber-600 hover:bg-amber-700 text-white p-1.5 rounded text-[10px] font-bold font-heading">2. Cocina</button>
+                                <button onclick="window.changeLiveStatus('${order.id}', 3, '¡Entró al Horno! 🔥', 'Cocinándose a la temperatura ideal.')" class="bg-orange-600 hover:bg-orange-700 text-white p-1.5 rounded text-[10px] font-bold font-heading">3. Horno</button>
+                                <button onclick="window.changeLiveStatus('${order.id}', 4, '¡Repartidor en Camino! 🛵', 'La unidad va rumbo a tu casa.')" class="bg-green-600 hover:bg-green-700 text-white p-1.5 rounded text-[10px] font-bold font-heading">4. Reparto</button>
+                            </div>
+                        `;
+                        listContainer.appendChild(orderCard);
+                    });
+                };
+
+                window.addEventListener('local_pedidos_update', renderLocalOrders);
+                window.addEventListener('storage', renderLocalOrders);
+                renderLocalOrders();
+
+                unsubscribeOrdersList = () => {
+                    window.removeEventListener('local_pedidos_update', renderLocalOrders);
+                    window.removeEventListener('storage', renderLocalOrders);
+                };
+                return;
+            }
+
+            if (!db || !fbUser) return;
+            if (unsubscribeOrdersList) unsubscribeOrdersList();
+
+            unsubscribeOrdersList = onSnapshot(collection(db, "artifacts", appId, "public", "data", "pedidos"), (snapshot) => {
+                const listContainer = document.getElementById('admin-orders-list');
+                listContainer.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    listContainer.innerHTML = `<p class="text-xs text-gray-400 text-center py-8">No se han recibido pedidos en la base de datos.</p>`;
+                    return;
+                }
+
+                const ordersList = [];
+                snapshot.forEach((snapshotDoc) => {
+                    ordersList.push({ id: snapshotDoc.id, ...snapshotDoc.data() });
+                });
+
+                // Ordenamiento cronológico en memoria (Regla 2)
+                ordersList.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                ordersList.forEach((order) => {
+                    const orderCard = document.createElement('div');
+                    orderCard.className = 'bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-3 text-left';
+                    
+                    let itemsHtml = '';
+                    if (order.items && order.items.length > 0) {
+                        order.items.forEach(it => {
+                            itemsHtml += `<span class="bg-gray-100 text-slate-800 text-[11px] px-2 py-0.5 rounded font-medium">${it.quantity}x ${it.name}</span> `;
+                        });
+                    }
+
+                    let payHtml = '';
+                    if (order.metodoPago === 'movil') {
+                        payHtml = `📱 Pago Móvil (Ref: ${order.detallesPago?.referencia || 'N/A'})`;
+                    } else if (order.metodoPago === 'trans') {
+                        payHtml = `🏢 Trans (Ref: ${order.detallesPago?.referencia || 'N/A'})`;
+                    } else {
+                        payHtml = `💳 T. Débito`;
+                    }
+
+                    orderCard.innerHTML = `
+                        <div class="flex justify-between items-start border-b pb-2">
+                            <div>
+                                <span class="font-extrabold text-slate-900 text-xs sm:text-sm">Pedido #${order.id}</span>
+                                <p class="text-[10px] text-gray-400 font-mono mt-0.5">${payHtml}</p>
+                            </div>
+                            <span class="text-xs px-2 py-0.5 rounded font-black bg-amber-100 text-amber-800 uppercase">Estatus ${order.paso}</span>
+                        </div>
+                        <div class="text-xs space-y-1">
+                            <p><strong>Cliente:</strong> ${order.cliente} (${order.telefono})</p>
+                            <p><strong>Dirección:</strong> ${order.direccion}</p>
+                            <p class="pt-1"><strong>Productos:</strong></p>
+                            <div class="flex flex-wrap gap-1">${itemsHtml}</div>
+                            <p class="pt-1 text-rose-600 font-extrabold">Total: €${parseFloat(order.total || 0).toFixed(2)}</p>
+                        </div>
+                        <div class="grid grid-cols-4 gap-1 pt-2 border-t">
+                            <button onclick="window.changeLiveStatus('${order.id}', 1, 'Confirmando fondos...', 'Validando el pago de tu orden.')" class="bg-blue-600 hover:bg-blue-700 text-white p-1.5 rounded text-[10px] font-bold font-heading">1. Recibido</button>
+                            <button onclick="window.changeLiveStatus('${order.id}', 2, '¡Orden en Cocina! 👨‍🍳', 'Preparando la masa artesanal.')" class="bg-amber-600 hover:bg-amber-700 text-white p-1.5 rounded text-[10px] font-bold font-heading">2. Cocina</button>
+                            <button onclick="window.changeLiveStatus('${order.id}', 3, '¡Entró al Horno! 🔥', 'Cocinándose a la temperatura ideal.')" class="bg-orange-600 hover:bg-orange-700 text-white p-1.5 rounded text-[10px] font-bold font-heading">3. Horno</button>
+                            <button onclick="window.changeLiveStatus('${order.id}', 4, '¡Repartidor en Camino! 🛵', 'La unidad va rumbo a tu casa.')" class="bg-green-600 hover:bg-green-700 text-white p-1.5 rounded text-[10px] font-bold font-heading">4. Reparto</button>
+                        </div>
+                    `;
+                    listContainer.appendChild(orderCard);
+                });
+            }, (error) => {
+                console.error("Error al escuchar pedidos del panel: ", error);
+            });
+        }
+
+        // --- SISTEMA DE AUTENTICACIÓN / PESTAÑAS (LOGIN & SIGNUP CON FIREBASE) ---
+        function switchUserTab(tab) {
+            const active = ['bg-white', 'text-slate-900', 'shadow-sm'];
+            const inactive = ['text-gray-500', 'hover:text-slate-800'];
+
+            if (tab === 'login') {
+                userTabLogin.className = `flex-1 py-2 text-xs sm:text-sm font-bold rounded-lg transition ${active.join(' ')}`;
+                userTabSignup.className = `flex-1 py-2 text-xs sm:text-sm font-bold transition ${inactive.join(' ')}`;
+                formLogin.classList.remove('hidden');
+                formSignup.classList.add('hidden');
+            } else {
+                userTabSignup.className = `flex-1 py-2 text-xs sm:text-sm font-bold rounded-lg transition ${active.join(' ')}`;
+                userTabLogin.className = `flex-1 py-2 text-xs sm:text-sm font-bold transition ${inactive.join(' ')}`;
+                formSignup.classList.remove('hidden');
+                formLogin.classList.add('hidden');
+            }
+        }
+
+        userTabLogin.addEventListener('click', () => switchUserTab('login'));
+        userTabSignup.addEventListener('click', () => switchUserTab('signup'));
+
+        // Registro de un nuevo usuario
+        btnSubmitSignup.addEventListener('click', async () => {
+            const username = document.getElementById('reg-username').value.trim().toLowerCase();
+            const password = document.getElementById('reg-password').value.trim();
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const phone = document.getElementById('reg-phone').value.trim();
+            const address = document.getElementById('reg-address').value.trim();
+
+            if (!username || !password || !name || !email || !phone || !address) {
+                showNotification('Por favor, rellene todos los campos de registro.', 'error');
+                return;
+            }
+
+            if (window.usarLocalFallback) {
+                const localUsers = JSON.parse(localStorage.getItem('ole_pizza_local_usuarios')) || {};
+                if (localUsers[username]) {
+                    showNotification('El nombre de usuario ya se encuentra registrado de forma local.', 'error');
+                    return;
+                }
+                const userPayload = { username, password, name, email, phone, address };
+                localUsers[username] = userPayload;
+                localStorage.setItem('ole_pizza_local_usuarios', JSON.stringify(localUsers));
+                currentUser = userPayload;
+                localStorage.setItem('ole_pizza_user', JSON.stringify(currentUser));
+                updateUserNavbarUI();
+                closeModal(userModal);
+                showNotification(`¡Registro exitoso! Bienvenido, ${name}`);
+                return;
+            }
+
+            if (!db || !fbUser) {
+                showNotification("No hay conexión segura con el servidor. Revisa tu consola de Firebase.", "error");
+                return;
+            }
+
+            try {
+                // Verificar si el nombre de usuario ya está tomado
+                const userDocRef = doc(db, "artifacts", appId, "public", "data", "usuarios", username);
+                const userSnapshot = await getDoc(userDocRef);
+
+                if (userSnapshot.exists()) {
+                    showNotification('El nombre de usuario ya se encuentra registrado.', 'error');
+                    return;
+                }
+
+                // Guardar la ficha técnica en la base de datos en la nube
+                const userPayload = { username, password, name, email, phone, address };
+                await setDoc(userDocRef, userPayload);
+
+                // Autenticar la sesión en vivo localmente
+                currentUser = userPayload;
+                localStorage.setItem('ole_pizza_user', JSON.stringify(currentUser));
+                updateUserNavbarUI();
+                closeModal(userModal);
+                showNotification(`¡Registro exitoso! Bienvenido, ${name}`);
+            } catch (error) {
+                console.error("Error al registrar usuario: ", error);
+                showNotification("Error de registro en el servidor.", "error");
+            }
+        });
+
+        // Inicio de sesión de un usuario existente
+        btnSubmitLogin.addEventListener('click', async () => {
+            const username = document.getElementById('login-username').value.trim().toLowerCase();
+            const password = document.getElementById('login-password').value.trim();
+
+            if (!username || !password) {
+                showNotification('Rellene el nombre de usuario y contraseña.', 'error');
+                return;
+            }
+
+            if (window.usarLocalFallback) {
+                const localUsers = JSON.parse(localStorage.getItem('ole_pizza_local_usuarios')) || {};
+                if (!localUsers[username]) {
+                    showNotification('El usuario ingresado no existe en el sistema local.', 'error');
+                    return;
+                }
+                const userData = localUsers[username];
+                if (userData.password !== password) {
+                    showNotification('La contraseña ingresada es incorrecta.', 'error');
+                    return;
+                }
+                currentUser = userData;
+                localStorage.setItem('ole_pizza_user', JSON.stringify(currentUser));
+                updateUserNavbarUI();
+                closeModal(userModal);
+                showNotification(`¡Sesión Iniciada! Hola de nuevo, ${userData.name}`);
+                return;
+            }
+
+            if (!db || !fbUser) {
+                showNotification("No hay conexión segura con el servidor. Revisa tu consola de Firebase.", "error");
+                return;
+            }
+
+            try {
+                const userDocRef = doc(db, "artifacts", appId, "public", "data", "usuarios", username);
+                const userSnapshot = await getDoc(userDocRef);
+
+                if (!userSnapshot.exists()) {
+                    showNotification('El usuario ingresado no existe.', 'error');
+                    return;
+                }
+
+                const userData = userSnapshot.data();
+                if (userData.password !== password) {
+                    showNotification('La contraseña ingresada es incorrecta.', 'error');
+                    return;
+                }
+
+                // Autenticar la sesión
+                currentUser = userData;
+                localStorage.setItem('ole_pizza_user', JSON.stringify(currentUser));
+                updateUserNavbarUI();
+                closeModal(userModal);
+                showNotification(`¡Sesión Iniciada! Hola de nuevo, ${userData.name}`);
+            } catch (error) {
+                console.error("Error al iniciar sesión: ", error);
+                showNotification("Ocurrió un error en el servidor.", "error");
+            }
+        });
+
+        // Cerrar sesión
+        btnLogoutUser.addEventListener('click', () => {
+            currentUser = null;
+            localStorage.removeItem('ole_pizza_user');
+            updateUserNavbarUI();
+            closeModal(userModal);
+            showNotification('Sesión finalizada con éxito.', 'error');
+        });
+
+        // Configuración de Perfil / Mostrar u Ocultar
+        btnUserProfile.addEventListener('click', () => {
+            openModal(userModal);
+            if (currentUser) {
+                userLoggedOutState.classList.add('hidden');
+                userLoggedInState.classList.remove('hidden');
+                document.getElementById('profile-name-text').textContent = `Cliente: ${currentUser.name}`;
+                document.getElementById('profile-username-text').textContent = `Usuario: @${currentUser.username}`;
+                document.getElementById('profile-email-text').textContent = `Correo: ${currentUser.email}`;
+                document.getElementById('profile-phone-text').textContent = `Tlf: ${currentUser.phone}`;
+                document.getElementById('profile-address-text').innerHTML = `<strong>Dirección:</strong> ${currentUser.address}`;
+            } else {
+                userLoggedOutState.classList.remove('hidden');
+                userLoggedInState.classList.add('hidden');
+                switchUserTab('login'); // Por defecto iniciar sesión
+            }
+        });
+
+        closeUserModal.addEventListener('click', () => closeModal(userModal));
+
+        function updateUserNavbarUI() {
+            navUserText.textContent = currentUser ? currentUser.name.split(' ')[0] : 'Iniciar Sesión';
+        }
+
+        // --- SISTEMA DE COMPRAS & CHECKOUT ---
+        btnCheckout.addEventListener('click', () => {
+            if (cart.length === 0) return;
+            closeCart();
+            openModal(checkoutModal);
+            
+            // Auto-rellenar si hay sesión activa
+            if (currentUser) {
+                document.getElementById('chk-name').value = currentUser.name;
+                document.getElementById('chk-phone').value = currentUser.phone;
+                document.getElementById('chk-address').value = currentUser.address;
+            } else {
+                document.getElementById('chk-name').value = '';
+                document.getElementById('chk-phone').value = '';
+                document.getElementById('chk-address').value = '';
+            }
+
+            let subtotal = 0;
+            cart.forEach(item => { subtotal += parseFloat(item.price) * item.quantity; });
+            checkoutTotalText.textContent = `€${subtotal.toFixed(2)}`;
+            switchPaymentMethod('movil');
+        });
+
+        closeCheckout.addEventListener('click', () => closeModal(checkoutModal));
+
+        document.getElementById('pay-method-movil').addEventListener('click', () => switchPaymentMethod('movil'));
+        document.getElementById('pay-method-trans').addEventListener('click', () => switchPaymentMethod('trans'));
+        document.getElementById('pay-method-debit').addEventListener('click', () => switchPaymentMethod('debit'));
+
+        function switchPaymentMethod(method) {
+            selectedPaymentMethod = method;
+            const active = ['border-rose-600', 'bg-rose-50', 'text-rose-700'];
+            const inactive = ['border-gray-200', 'bg-transparent', 'text-gray-600'];
+            document.getElementById('pay-method-movil').className = `border-2 p-2 rounded-xl text-xs font-bold ${method === 'movil' ? active.join(' ') : inactive.join(' ')}`;
+            document.getElementById('pay-method-trans').className = `border-2 p-2 rounded-xl text-xs font-bold ${method === 'trans' ? active.join(' ') : inactive.join(' ')}`;
+            document.getElementById('pay-method-debit').className = `border-2 p-2 rounded-xl text-xs font-bold ${method === 'debit' ? active.join(' ') : inactive.join(' ')}`;
+            document.getElementById('form-pay-movil').classList.add('hidden');
+            document.getElementById('form-pay-trans').classList.add('hidden');
+            document.getElementById('form-pay-debit').classList.add('hidden');
+            if (method === 'movil') document.getElementById('form-pay-movil').classList.remove('hidden');
+            if (method === 'trans') document.getElementById('form-pay-trans').classList.remove('hidden');
+            if (method === 'debit') document.getElementById('form-pay-debit').classList.remove('hidden');
+        }
+
+        btnSubmitPayment.addEventListener('click', async () => {
+            const receiverName = document.getElementById('chk-name').value.trim();
+            const receiverPhone = document.getElementById('chk-phone').value.trim();
+            const receiverAddress = document.getElementById('chk-address').value.trim();
+            if (!receiverName || !receiverPhone || !receiverAddress) { showNotification('Complete los datos de entrega.', 'error'); return; }
+
+            const orderId = 'OLE-' + Math.floor(1000 + Math.random() * 9000);
+            currentOrderId = orderId;
+            localStorage.setItem('ole_pizza_current_order_id', orderId);
+
+            let detallesPago = {};
+            if (selectedPaymentMethod === 'movil') {
+                detallesPago = {
+                    banco: document.getElementById('pm-banco').value.trim(),
+                    referencia: document.getElementById('pm-ref').value.trim()
+                };
+            } else if (selectedPaymentMethod === 'trans') {
+                detallesPago = {
+                    referencia: document.getElementById('tx-ref').value.trim()
+                };
+            } else {
+                detallesPago = {
+                    tarjeta: document.getElementById('card-number').value.trim().substring(12)
+                };
+            }
+
+            let subtotal = 0;
+            const itemsResumen = cart.map(it => {
+                subtotal += it.price * it.quantity;
+                return { name: it.name, quantity: it.quantity, price: it.price };
+            });
+
+            const orderPayload = {
+                id: orderId,
+                cliente: receiverName,
+                telefono: receiverPhone,
+                direccion: receiverAddress,
+                paso: 1,
+                titulo: "Esperando confirmación de cocina...",
+                subtexto: "El restaurante está validando tus datos de facturación.",
+                metodoPago: selectedPaymentMethod,
+                detallesPago: detallesPago,
+                items: itemsResumen,
+                total: subtotal,
+                timestamp: new Date().getTime()
+            };
+
+            if (window.usarLocalFallback) {
+                const localPedidos = JSON.parse(localStorage.getItem('ole_pizza_local_pedidos')) || {};
+                localPedidos[orderId] = orderPayload;
+                localStorage.setItem('ole_pizza_local_pedidos', JSON.stringify(localPedidos));
+                window.dispatchEvent(new Event('local_pedidos_update'));
+                
+                closeModal(checkoutModal);
+                openModal(trackerModal);
+                escucharPedidoEnFirebase(orderId);
+                showNotification("Pedido registrado de manera local con éxito.", "success");
+                return;
+            }
+
+            if (db && fbUser) {
+                try {
+                    await setDoc(doc(db, "artifacts", appId, "public", "data", "pedidos", orderId), orderPayload);
+
+                    closeModal(checkoutModal);
+                    openModal(trackerModal);
+                    escucharPedidoEnFirebase(orderId);
+                    showNotification("Pedido registrado de manera online en Firebase.", "success");
+                } catch (e) {
+                    console.error("Error al registrar orden: ", e);
+                    showNotification("Error de conexión al procesar orden.", "error");
+                }
+            } else {
+                showNotification("No hay conexión con la base de datos o falta autenticación.", "error");
+            }
+        });
+
+        // --- RENDERIZACIÓN DE PRODUCTOS Y CATALOGO ---
+        function renderProducts(categoryFilter) {
+            productGrid.innerHTML = '';
+            const filteredData = categoryFilter === 'all' ? menuData : menuData.filter(item => item.category === categoryFilter);
+            filteredData.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100 flex flex-col justify-between h-full transform hover:-translate-y-1 transition duration-300';
+                card.innerHTML = `
+                    <div>
+                        <div class="h-44 w-full bg-gray-100 overflow-hidden"><img src="${item.img}" alt="${item.name}" class="w-full h-full object-cover"></div>
+                        <div class="p-5">
+                            <h3 class="text-lg font-extrabold text-slate-900 line-clamp-1">${item.name}</h3>
+                            <p class="text-gray-500 text-xs mt-2 line-clamp-3 leading-relaxed">${item.desc}</p>
+                        </div>
+                    </div>
+                    <div class="p-5 pt-0 flex items-center justify-between">
+                        <span class="text-xl font-black text-slate-900 font-mono">€${parseFloat(item.price).toFixed(2)}</span>
+                        <button onclick="window.addToCart(${item.id})" class="bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white font-bold w-10 h-10 rounded-full flex items-center justify-center transition shadow-sm">+</button>
+                    </div>
+                `;
+                productGrid.appendChild(card);
+            });
+        }
+
+        function addToCart(productId) {
+            const product = menuData.find(p => p.id === productId);
+            if (!product) return;
+            const existingItem = cart.find(item => item.id === productId);
+            if (existingItem) { existingItem.quantity += 1; } else { cart.push({ ...product, quantity: 1 }); }
+            updateCartUI();
+            showNotification(`¡Añadido: ${product.name}!`);
+        }
+
+        function updateCartUI() {
+            cartCountDisplay.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = ''; cartItemsContainer.appendChild(emptyCartMsg); emptyCartMsg.style.display = 'block';
+                cartSubtotalDisplay.textContent = '€0.00'; cartTotalDisplay.textContent = '€0.00'; return;
+            }
+            emptyCartMsg.style.display = 'none'; cartItemsContainer.innerHTML = ''; let subtotal = 0;
+            cart.forEach(item => {
+                subtotal += item.price * item.quantity;
+                const row = document.createElement('div');
+                row.className = 'bg-white p-3 rounded-xl border border-gray-100 flex gap-3 items-center shadow-sm';
+                row.innerHTML = `
+                    <div class="w-12 h-12 rounded overflow-hidden flex-shrink-0"><img src="${item.img}" class="w-full h-full object-cover"></div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-bold text-slate-900 text-xs truncate">${item.name}</h4>
+                        <div class="text-rose-600 font-bold text-sm">€${item.price.toFixed(2)}</div>
+                    </div>
+                    <div class="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+                        <button onclick="window.updateQuantity(${item.id}, -1)" class="w-5 h-5 bg-white rounded font-bold text-xs shadow-sm">-</button>
+                        <span class="w-4 text-center text-xs font-bold text-slate-800">${item.quantity}</span>
+                        <button onclick="window.updateQuantity(${item.id}, 1)" class="w-5 h-5 bg-white rounded font-bold text-xs shadow-sm">+</button>
+                    </div>
+                `;
+                cartItemsContainer.appendChild(row);
+            });
+            cartSubtotalDisplay.textContent = `€${subtotal.toFixed(2)}`; cartTotalDisplay.textContent = `€${subtotal.toFixed(2)}`;
+        }
+
+        function updateQuantity(productId, delta) {
+            const item = cart.find(item => item.id === productId); if (!item) return;
+            item.quantity += delta; if (item.quantity <= 0) cart = cart.filter(i => i.id !== productId);
+            updateCartUI();
+        }
+
+        // --- SECCIÓN DE PANEL DE ADMINISTRADOR ---
+        btnAdminAuth.addEventListener('click', () => {
+            if (isAdminLoggedIn) { openAdminPanel(); } else { openModal(authModal); adminPasswordInput.value = ''; authErrorMsg.classList.add('hidden'); }
+        });
+        btnCancelAuth.addEventListener('click', () => closeModal(authModal));
+        btnAdminAuth.addEventListener('touchstart', () => {
+            if (isAdminLoggedIn) { openAdminPanel(); } else { openModal(authModal); adminPasswordInput.value = ''; authErrorMsg.classList.add('hidden'); }
+        });
+        btnSubmitAuth.addEventListener('click', handleAuth);
+
+        function handleAuth() {
+            if (adminPasswordInput.value === 'ole2026') {
+                isAdminLoggedIn = true; closeModal(authModal); btnAdminAuth.innerHTML = '⚙️ Admin';
+                btnAdminAuth.className = "bg-green-100 text-green-800 border border-green-200 px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition flex items-center gap-1";
+                openAdminPanel();
+            } else { authErrorMsg.classList.remove('hidden'); }
+        }
+
+        function openAdminPanel() {
+            openModal(adminPanelModal); adminProductList.innerHTML = '';
+            menuData.forEach((item, index) => {
+                const itemCard = document.createElement('div');
+                itemCard.className = 'bg-white p-4 rounded-xl border space-y-2 text-left';
+                itemCard.innerHTML = `
+                    <div class="font-bold text-xs text-slate-700">Editar: ${item.name}</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" value="${item.name}" data-index="${index}" data-field="name" class="admin-input border p-2 text-xs rounded w-full">
+                        <input type="number" step="0.01" value="${item.price}" data-index="${index}" data-field="price" class="admin-input border p-2 text-xs rounded w-full">
+                    </div>
+                    <input type="text" value="${item.img}" data-index="${index}" data-field="img" class="admin-input border p-2 text-xs rounded w-full font-mono text-gray-500">
+                `;
+                adminProductList.appendChild(itemCard);
+            });
+            
+            if (isAdminLoggedIn) {
+                escucharTodosLosPedidos();
+            }
+        }
+
+        btnSaveAdminChanges.addEventListener('click', () => {
+            document.querySelectorAll('.admin-input').forEach(input => {
+                const index = input.dataset.index; const field = input.dataset.field;
+                menuData[index][field] = field === 'price' ? parseFloat(input.value) : input.value;
+            });
+            localStorage.setItem('ole_pizza_menu_data', JSON.stringify(menuData));
+            renderProducts('all'); closeModal(adminPanelModal); showNotification('Catálogo guardado.');
+        });
+
+        btnResetDefault.addEventListener('click', () => { menuData = [...initialMenuData]; localStorage.setItem('ole_pizza_menu_data', JSON.stringify(menuData)); renderProducts('all'); closeModal(adminPanelModal); });
+        closeAdminPanel.addEventListener('click', () => closeModal(adminPanelModal));
+        
+        const tabOrdersBtn = document.getElementById('tab-orders-btn');
+        const tabCatalogBtn = document.getElementById('tab-catalog-btn');
+        const tabOrders = document.getElementById('admin-tab-orders');
+        const tabCatalog = document.getElementById('admin-tab-catalog');
+
+        tabOrdersBtn.addEventListener('click', () => {
+            tabOrdersBtn.className = "flex-1 py-2 text-sm font-bold text-slate-900 border-b-2 border-rose-600 bg-white transition font-heading";
+            tabCatalogBtn.className = "flex-1 py-2 text-sm font-bold text-gray-500 hover:text-slate-800 transition font-heading";
+            tabOrders.classList.remove('hidden');
+            tabCatalog.classList.add('hidden');
+        });
+
+        tabCatalogBtn.addEventListener('click', () => {
+            tabCatalogBtn.className = "flex-1 py-2 text-sm font-bold text-slate-900 border-b-2 border-rose-600 bg-white transition font-heading";
+            tabOrdersBtn.className = "flex-1 py-2 text-sm font-bold text-gray-500 hover:text-slate-800 transition font-heading";
+            tabCatalog.classList.remove('hidden');
+            tabOrders.classList.add('hidden');
+        });
+
+        function openModal(modal) { modal.classList.remove('hidden'); modalOverlay.classList.remove('hidden'); }
+        function closeModal(modal) { modal.classList.add('hidden'); modalOverlay.classList.add('hidden'); }
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                filterBtns.forEach(b => b.className = 'filter-btn bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 px-5 py-2 rounded-xl font-bold whitespace-nowrap transition text-sm');
+                e.target.className = 'filter-btn active bg-[#0f172a] text-white px-5 py-2 rounded-xl font-bold whitespace-nowrap transition text-sm shadow-md';
+                renderProducts(e.target.dataset.category);
+            });
+        });
+
+        cartToggle.addEventListener('click', () => { cartSidebar.classList.remove('translate-x-full'); modalOverlay.classList.remove('hidden'); });
+        closeCartBtn.addEventListener('click', () => { cartSidebar.classList.add('translate-x-full'); modalOverlay.classList.add('hidden'); });
+        
+        btnCloseTracker.addEventListener('click', () => { 
+            if (unsubscribeTracker) unsubscribeTracker(); 
+            closeModal(trackerModal); 
+            cart = []; 
+            updateCartUI(); 
+            localStorage.removeItem('ole_pizza_current_order_id');
+            currentOrderId = null;
+        });
+
+        // Inicialización y carga de sistemas asíncronos en orden seguro
+        initAuth();
+        updateUserNavbarUI();
+        renderProducts('all');
+        initChart();
+
+        function initChart() {
+            const ctx = document.getElementById('popularityChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pepperoni', 'Extra Queso', 'Champiñones', 'Cebolla', 'Jamón'],
+                    datasets: [{ data: [45, 25, 15, 10, 5], backgroundColor: ['#e11d48', '#f59e0b', '#9ca3af', '#3b82f6', '#f43f5e'] }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '75%' }
+            });
+        }
+    </script>
+</body>
+</html>
